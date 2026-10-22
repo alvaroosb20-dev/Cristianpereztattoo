@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" role="img" aria-label="Camiseta negra con estatua">
+<defs><radialGradient id="v" cx="50%" cy="45%" r="70%"><stop offset="0" stop-color="#26231f"/><stop offset="1" stop-color="#1c1a17"/></radialGradient></defs>
+<rect width="800" height="800" fill="url(#v)"/>
+<ellipse cx="400" cy="700" rx="240" ry="18" fill="#000" opacity=".35"/>
+<path d="M250 190 L330 160 Q400 200 470 160 L550 190 L640 280 L580 340 L540 310 L540 640 L260 640 L260 310 L220 340 L160 280 Z" fill="#0d0c0b" stroke="#2e2a25" stroke-width="3"/><path d="M330 160 Q400 215 470 160" fill="none" stroke="#2e2a25" stroke-width="6"/><g fill="none" stroke="#ece6da" stroke-width="5" stroke-linecap="round">
+<path d="M352 330 Q340 280 390 270 Q450 265 452 320 Q458 370 430 410 Q440 460 400 470 Q360 460 366 410 Q340 380 352 330Z"/>
+<path d="M380 360 q8 -6 16 0 M414 360 q8 -6 16 0 M404 370 l-6 26 l10 2 M388 422 q16 8 30 0"/>
+<path d="M340 290 q-10 -20 10 -30 q0 -20 25 -20 q10 -18 32 -8 q22 -8 30 12 q24 4 20 28"/>
+<path d="M366 410 q-6 30 4 54 M430 410 q8 30 -4 54"/>
+</g><rect x="343.37" y="375.0" width="113.26" height="70" fill="none" stroke="#b8975a" stroke-width="1.2"/><path d="M343.37 445.0 A70 70 0 0 1 413.37 375.0 A43.26 43.26 0 0 1 456.63 418.26 A26.740000000000002 26.740000000000002 0 0 1 429.89 445.0 A16.52 16.52 0 0 1 413.37 428.48" fill="none" stroke="#b8975a" stroke-width="2"/><line x1="413.37" y1="375.0" x2="413.37" y2="445.0" stroke="#b8975a" stroke-width="1.2"/><line x1="413.37" y1="418.26" x2="456.63" y2="418.26" stroke="#b8975a" stroke-width="1.2"/>
+</svg>

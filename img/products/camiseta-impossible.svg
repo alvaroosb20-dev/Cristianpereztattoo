@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" role="img" aria-label="Camiseta blanca Impossible">
+<defs><radialGradient id="v" cx="50%" cy="45%" r="70%"><stop offset="0" stop-color="#26231f"/><stop offset="1" stop-color="#1c1a17"/></radialGradient></defs>
+<rect width="800" height="800" fill="url(#v)"/>
+<ellipse cx="400" cy="700" rx="240" ry="18" fill="#000" opacity=".35"/>
+<path d="M250 190 L330 160 Q400 200 470 160 L550 190 L640 280 L580 340 L540 310 L540 640 L260 640 L260 310 L220 340 L160 280 Z" fill="#ece6da" stroke="#cfc8ba" stroke-width="3"/><path d="M330 160 Q400 215 470 160" fill="none" stroke="#cfc8ba" stroke-width="6"/><text x="400" y="330" text-anchor="middle" font-family="Georgia, serif" font-size="54" fill="#0d0c0b" letter-spacing="1">IMPOSSIBLE</text><text x="400" y="358" text-anchor="middle" font-family="Arial" font-size="12" letter-spacing="3" fill="#0d0c0b">PROMÉTEME OTRA NOCHE</text><rect x="345" y="380" width="110" height="140" fill="#0d0c0b"/><g fill="none" stroke="#ece6da" stroke-width="3" transform="translate(80 91) scale(.8)" stroke-linecap="round">
+<path d="M352 385 Q340 335 390 325 Q450 320 452 375 Q458 425 430 465 Q440 515 400 525 Q360 515 366 465 Q340 435 352 385Z"/>
+<path d="M380 415 q8 -6 16 0 M414 415 q8 -6 16 0 M404 425 l-6 26 l10 2 M388 477 q16 8 30 0"/>
+<path d="M340 345 q-10 -20 10 -30 q0 -20 25 -20 q10 -18 32 -8 q22 -8 30 12 q24 4 20 28"/>
+<path d="M366 465 q-6 30 4 54 M430 465 q8 30 -4 54"/>
+</g>
+</svg>

@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /api/
+Disallow: /carrito
+Disallow: /reserva-confirmada
+Disallow: /pedido-confirmado
+
+Sitemap: https://TU-DOMINIO/sitemap.xml

@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tienda · Cristhian Pérez Tattoo</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Tienda oficial de Cristhian Pérez Tattoo: camisetas, gorras, sudaderas, prints, productos de cuidado del tatuaje y tarjetas regalo. Envíos a toda España.">
+<meta name="theme-color" content="#0d0c0b">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Tienda · Cristhian Pérez Tattoo">
+<meta property="og:description" content="Tienda oficial de Cristhian Pérez Tattoo: camisetas, gorras, sudaderas, prints, productos de cuidado del tatuaje y tarjetas regalo. Envíos a toda España.">
+<meta property="og:image" content="media/tattoo-estatua.webp">
+<meta property="og:locale" content="es_ES">
+<!-- Google Search Console: pega aquí tu etiqueta de verificación -->
+<link rel="icon" href="img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,300..800&family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..700;1,6..96,400..600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body data-page="shop">
+<a class="label" href="#main" style="position:absolute;left:-9999px">Saltar al contenido</a>
+<div id="site-header"></div>
+<main id="main">
+<section class="page-head"><div class="wrap">
+  <span class="label">Tienda oficial</span>
+  <h1 class="display h1">Tien<em>da</em></h1>
+  <p class="lead muted" style="margin-top:1.2rem">Tiradas cortas, cuidado del tatuaje y tarjetas regalo. Envíos a Canarias, Península y Baleares.</p>
+</div></section>
+<section class="wrap" style="padding-block:2rem 5rem">
+  <div class="shop-bar">
+    <div class="filters" id="cats" role="group" aria-label="Categorías"></div>
+    <label class="mono muted" style="display:flex;gap:.6rem;align-items:center">Ordenar
+      <select class="select" id="sort"><option value="sort">Destacados</option><option value="price-asc">Precio: menor a mayor</option><option value="price-desc">Precio: mayor a menor</option><option value="name">Nombre</option></select>
+    </label>
+  </div>
+  <div class="products" id="grid"></div>
+  <p class="muted" id="empty" hidden>No hay productos en esta categoría.</p>
+</section>
+</main>
+<div id="site-footer"></div>
+<script src="assets/js/config.js" defer></script>
+<script src="assets/js/seed.js" defer></script>
+<script src="assets/js/availability.js" defer></script>
+<script src="assets/js/common.js" defer></script>
+<script src="assets/js/shop.js" defer></script>
+</body>
+</html>

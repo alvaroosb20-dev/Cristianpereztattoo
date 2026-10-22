@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Carrito · Cristhian Pérez Tattoo</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Tu carrito en la tienda de Cristhian Pérez Tattoo.">
+<meta name="theme-color" content="#0d0c0b">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Carrito · Cristhian Pérez Tattoo">
+<meta property="og:description" content="Tu carrito en la tienda de Cristhian Pérez Tattoo.">
+<meta property="og:image" content="media/tattoo-estatua.webp">
+<meta property="og:locale" content="es_ES">
+<!-- Google Search Console: pega aquí tu etiqueta de verificación -->
+<link rel="icon" href="img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,300..800&family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..700;1,6..96,400..600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body data-page="cart">
+<a class="label" href="#main" style="position:absolute;left:-9999px">Saltar al contenido</a>
+<div id="site-header"></div>
+<main id="main">
+<section class="page-head"><div class="wrap"><span class="label">Tienda</span><h1 class="display h1">Carri<em>to</em></h1></div></section>
+<div class="wrap">
+  <div id="cart-notice"></div>
+  <div class="cart-layout" id="cart-layout">
+    <div>
+      <div id="cart-lines"></div>
+      <form id="checkout-form" novalidate style="margin-top:2.4rem;display:flex;flex-direction:column;gap:1.6rem">
+        <h2 class="display h3">Datos de envío</h2>
+        <div class="form-grid">
+          <label class="field full"><span class="label">Nombre y apellidos</span><input class="input" id="c-name" autocomplete="name" required></label>
+          <label class="field"><span class="label">Correo</span><input class="input" id="c-email" type="email" autocomplete="email" required></label>
+          <label class="field"><span class="label">Teléfono</span><input class="input" id="c-phone" type="tel" autocomplete="tel" required></label>
+          <label class="field full"><span class="label">Zona de envío</span><select class="select" id="c-zone"></select></label>
+        </div>
+        <div class="form-grid" id="address-fields">
+          <label class="field full"><span class="label">Dirección</span><input class="input" id="a-line1" autocomplete="address-line1"></label>
+          <label class="field full"><span class="label">Piso, puerta (opcional)</span><input class="input" id="a-line2" autocomplete="address-line2"></label>
+          <label class="field"><span class="label">Código postal</span><input class="input" id="a-cp" inputmode="numeric" maxlength="5" autocomplete="postal-code"></label>
+          <label class="field"><span class="label">Localidad</span><input class="input" id="a-city" autocomplete="address-level2"></label>
+          <label class="field full"><span class="label">Provincia</span><input class="input" id="a-prov" autocomplete="address-level1"></label>
+        </div>
+        <label class="check"><input type="checkbox" id="b-same" checked> Usar los mismos datos para la factura</label>
+        <div class="form-grid" id="billing-fields" hidden>
+          <label class="field"><span class="label">Nombre o razón social</span><input class="input" id="b-name"></label>
+          <label class="field"><span class="label">NIF / CIF</span><input class="input" id="b-nif"></label>
+          <label class="field full"><span class="label">Dirección de facturación</span><input class="input" id="b-line1"></label>
+          <label class="field"><span class="label">Código postal</span><input class="input" id="b-cp" inputmode="numeric" maxlength="5"></label>
+          <label class="field"><span class="label">Localidad</span><input class="input" id="b-city"></label>
+          <label class="field full"><span class="label">Provincia</span><input class="input" id="b-prov"></label>
+        </div>
+        <label class="field"><span class="label">Notas del pedido (opcional)</span><textarea class="textarea" id="c-notes" style="min-height:90px"></textarea></label>
+      </form>
+    </div>
+    <aside class="summary" id="summary"></aside>
+  </div>
+</div>
+</main>
+<div id="site-footer"></div>
+<script src="assets/js/config.js" defer></script>
+<script src="assets/js/seed.js" defer></script>
+<script src="assets/js/availability.js" defer></script>
+<script src="assets/js/common.js" defer></script>
+<script src="assets/js/cart.js" defer></script>
+</body>
+</html>

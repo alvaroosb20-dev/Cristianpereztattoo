@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Cristhian Pérez Tattoo</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Estudio de tatuaje de Cristhian Pérez en Tenerife. Realismo black & grey, fine line y diseño propio. Reserva tu cita online con señal y compra en la tienda oficial.">
+<meta name="theme-color" content="#0d0c0b">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Cristhian Pérez Tattoo">
+<meta property="og:description" content="Estudio de tatuaje de Cristhian Pérez en Tenerife. Realismo black & grey, fine line y diseño propio. Reserva tu cita online con señal y compra en la tienda oficial.">
+<meta property="og:image" content="media/tattoo-estatua.webp">
+<meta property="og:locale" content="es_ES">
+<!-- Google Search Console: pega aquí tu etiqueta de verificación -->
+<link rel="icon" href="img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,300..800&family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..700;1,6..96,400..600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="assets/css/styles.css">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"TattooParlor","name":"Cristhian Pérez Tattoo","image":"media/tattoo-estatua.webp","address":{"@type":"PostalAddress","addressLocality":"Tenerife","addressRegion":"Islas Canarias","addressCountry":"ES"},"sameAs":["https://instagram.com/cristianperez.tat"]}
+</script>
+</head>
+<body data-page="home">
+<a class="label" href="#main" style="position:absolute;left:-9999px">Saltar al contenido</a>
+<div id="site-header"></div>
+<main id="main">
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div class="hero-copy">
+      <div class="hero-kicker label" data-bind="city">Tenerife · Islas Canarias</div>
+      <h1 class="display hero-title"><span class="line"><span>Cristhian</span></span><span class="line"><span><em>Pérez</em></span></span><span class="line"><span class="gold" style="font-size:.42em;letter-spacing:.32em;font-style:normal;font-family:var(--f-sans);font-stretch:75%;font-weight:600">TATTOO</span></span></h1>
+      <p class="hero-sub" data-bind="tagline">Realismo, fine line y piezas con alma editorial. Tenerife.</p>
+      <div class="hero-ctas">
+        <a class="btn btn-gold" href="reservar.html">Reservar cita</a>
+        <a class="btn btn-ghost" href="tienda.html">Ver tienda</a>
+      </div>
+    </div>
+    <div class="hero-media">
+      <video src="media/hero-loop.mp4" poster="media/video-1.jpg" autoplay muted loop playsinline preload="auto" aria-label="Cristhian Pérez tatuando en el estudio"></video>
+      <button class="chip-btn sound-btn" type="button" id="hero-sound"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z"/></svg>Ver con música</button>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="artista">
+  <div class="wrap split">
+    <figure class="artist-photo" style="margin:0">
+      <img src="media/video-2.jpg" alt="Cristhian Pérez trabajando en el estudio" loading="lazy">
+      <figcaption class="label mono">El artista</figcaption>
+    </figure>
+    <div class="about-text">
+      <span class="label gold">El artista</span>
+      <h2 class="display h2" style="margin:.8rem 0 1.6rem">Cada pieza empieza<br>con <em>una conversación</em>.</h2>
+      <div id="about"></div>
+      <dl class="facts">
+        <div><dt class="label">Estudio</dt><dd data-bind="cityShort">Tenerife</dd></div>
+        <div><dt class="label">Citas</dt><dd>Con reserva</dd></div>
+        <div><dt class="label">Señal</dt><dd data-bind="deposit">50 €</dd></div>
+      </dl>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="estilos">
+  <div class="wrap split">
+    <div>
+      <span class="label gold">Estilos</span>
+      <h2 class="display h2" style="margin-top:.8rem">Lo que se <em>tatúa</em> aquí</h2>
+      <p class="muted" style="margin-top:1.2rem;max-width:36ch">Elige un estilo y míralo en el portafolio, o llévalo directamente a tu solicitud de cita.</p>
+    </div>
+    <ul class="styles-list" id="styles-list"></ul>
+  </div>
+</section>
+
+<section class="section" id="trabajos">
+  <div class="wrap">
+    <div class="section-head">
+      <div><span class="label">Trabajos</span><h2 class="display h2">Portafolio</h2></div>
+      <a class="btn btn-ghost" href="portafolio.html">Ver todo</a>
+    </div>
+    <div class="reel" id="reel"></div>
+  </div>
+</section>
+
+<section class="section" id="tienda">
+  <div class="wrap">
+    <div class="section-head">
+      <div><span class="label">Tienda oficial</span><h2 class="display h2">Merch y <em>aftercare</em></h2></div>
+      <a class="btn btn-ghost" href="tienda.html">Ver tienda</a>
+    </div>
+    <div class="products" id="featured"></div>
+  </div>
+</section>
+
+<section class="section" id="opiniones" hidden>
+  <div class="wrap">
+    <div class="section-head"><div><span class="label">Opiniones</span><h2 class="display h2">Lo que dicen <em>en la piel</em></h2></div></div>
+    <div class="reviews" id="reviews"></div>
+  </div>
+</section>
+
+<section class="book-band">
+  <div class="wrap band-grid">
+    <div>
+      <span class="label muted">Reserva online</span>
+      <h2 class="display h2" style="margin:.8rem 0 1.4rem">Una señal de <span data-bind="deposit">50 €</span><br>bloquea <em>tu fecha</em>.</h2>
+      <p class="muted" style="max-width:48ch" data-bind="depositNote">La señal se descuenta del precio final del tatuaje.</p>
+      <a class="btn" href="reservar.html" style="margin-top:1rem">Reservar cita</a>
+    </div>
+    <ol class="steps-mini">
+      <li>Cuéntanos tu idea, zona y tamaño</li>
+      <li>Adjunta tu diseño o referencias</li>
+      <li>Elige día y hora libres</li>
+      <li>Paga la señal con Stripe y listo</li>
+    </ol>
+  </div>
+</section>
+
+<section class="section" id="contacto">
+  <div class="wrap">
+    <div class="section-head"><div><span class="label gold">Contacto</span><h2 class="display h2">Ven al <em>estudio</em></h2></div></div>
+    <div class="contact-grid" id="contact"></div>
+  </div>
+</section>
+</main>
+<div id="site-footer"></div>
+<script src="assets/js/config.js" defer></script>
+<script src="assets/js/seed.js" defer></script>
+<script src="assets/js/availability.js" defer></script>
+<script src="assets/js/common.js" defer></script>
+<script src="assets/js/home.js" defer></script>
+</body>
+</html>
