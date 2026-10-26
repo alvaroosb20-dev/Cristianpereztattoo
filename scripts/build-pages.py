@@ -17,7 +17,7 @@ def head(title, desc, extra=""):
 <meta property="og:type" content="website">
 <meta property="og:title" content="{title}">
 <meta property="og:description" content="{desc}">
-<meta property="og:image" content="media/clip-sesion.jpg">
+<meta property="og:image" content="media/hero.jpg">
 <meta property="og:locale" content="es_ES">
 <!-- Google Search Console: pega aquí tu etiqueta de verificación -->
 <link rel="icon" href="img/favicon.svg" type="image/svg+xml">
@@ -44,7 +44,7 @@ def page(fname, page_key, title, desc, main, scripts, extra_head=""):
     open(os.path.join(ROOT, fname), "w", encoding="utf-8").write(html)
 
 LDJSON = """<script type="application/ld+json">
-{"@context":"https://schema.org","@type":"TattooParlor","name":"Cristhian Pérez Tattoo","image":"media/clip-sesion.jpg","telephone":"+34 646 62 37 06","address":{"@type":"PostalAddress","streetAddress":"C. Álvaro Martín Díaz, 18","postalCode":"38320","addressLocality":"San Cristóbal de La Laguna","addressRegion":"Santa Cruz de Tenerife","addressCountry":"ES"},"sameAs":["https://instagram.com/cristianperez.tat"]}
+{"@context":"https://schema.org","@type":"TattooParlor","name":"Cristhian Pérez Tattoo","image":"media/hero.jpg","telephone":"+34 646 62 37 06","address":{"@type":"PostalAddress","streetAddress":"C. Álvaro Martín Díaz, 18","postalCode":"38320","addressLocality":"San Cristóbal de La Laguna","addressRegion":"Santa Cruz de Tenerife","addressCountry":"ES"},"sameAs":["https://instagram.com/cristianperez.tat"]}
 </script>
 """
 
@@ -62,7 +62,7 @@ page("index.html", "home", "Cristhian Pérez Tattoo",
       </div>
     </div>
     <div class="hero-media" data-video>
-      <video src="media/clip-sesion.mp4" poster="media/clip-sesion.jpg" autoplay muted loop playsinline preload="auto" aria-label="Cristhian Pérez tatuando en una sesión"></video>
+      <video src="media/hero.mp4" poster="media/hero.jpg" autoplay muted loop playsinline preload="auto" aria-label="Cristhian Pérez tatuando en el estudio"></video>
     </div>
   </div>
 </section>
