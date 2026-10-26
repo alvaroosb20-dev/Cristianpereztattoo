@@ -252,3 +252,17 @@ update public.portfolio set sort = 5 where src = 'media/video-2.mp4';
 insert into public.portfolio (kind, src, poster, title, style, sort)
 select 'video', 'media/clip-estudio.mp4', 'media/clip-estudio.jpg', 'Sesión en el estudio · costillas', 'Blackwork', 0
 where not exists (select 1 from public.portfolio where src = 'media/clip-estudio.mp4');
+
+-- Fotos de sesiones y vídeo «Del boceto a la piel»
+insert into public.portfolio (kind, src, poster, title, style, sort)
+select * from (values
+  ('video', 'media/clip-diseno.mp4', 'media/clip-diseno.jpg', 'Del boceto a la piel', 'Diseño propio / collage', -1),
+  ('photo', 'media/foto-1.webp', '', 'Primera consulta: el diseño en el iPad', 'Backstage', 10),
+  ('photo', 'media/foto-2.webp', '', 'Sesión de brazo', 'Fine line', 11),
+  ('photo', 'media/foto-3.webp', '', 'Cristhian en el estudio', 'Backstage', 12),
+  ('photo', 'media/foto-4.webp', '', 'Concentración', 'Backstage', 13),
+  ('photo', 'media/foto-5.webp', '', 'Trazando la pieza', 'Fine line', 14),
+  ('photo', 'media/foto-6.webp', '', 'Resultado: brazo completo', 'Microrealismo', 15),
+  ('photo', 'media/foto-7.webp', '', 'Sesión en el estudio', 'Fine line', 16)
+) v(kind, src, poster, title, style, sort)
+where not exists (select 1 from public.portfolio p where p.src = v.src);

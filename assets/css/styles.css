@@ -210,7 +210,9 @@ p { margin: 0 0 1em; }
 .filter:hover { color: var(--fg); border-color: var(--mute); }
 .filter[aria-pressed="true"] { background: var(--fg); color: var(--bg); border-color: var(--fg); }
 
-.gallery { columns: 3 280px; column-gap: 12px; }
+.gallery { columns: 2; column-gap: 10px; }
+@media (min-width: 900px) { .gallery { columns: 3; column-gap: 12px; } }
+@media (max-width: 600px) { .gallery .tile-cap { padding: 1.6rem .6rem .5rem; } .gallery .tile-cap .t { font-size: .85rem; } .gallery .tile-cap .label { font-size: .58rem; } }
 .gallery .tile { aspect-ratio: auto; margin-bottom: 12px; break-inside: avoid; display: block; }
 .gallery .tile img { height: auto; }
 .video-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr)); gap: 12px; margin-bottom: 2.5rem; }

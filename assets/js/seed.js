@@ -156,6 +156,14 @@
   ];
 
   const PORTFOLIO = [
+    { id: 'n0', kind: 'video', src: 'media/clip-diseno.mp4', poster: 'media/clip-diseno.jpg', title: 'Del boceto a la piel', style: 'Diseño propio / collage', sort: -1, visible: true },
+    { id: 'n1', kind: 'photo', src: 'media/foto-1.webp', poster: '', title: 'Primera consulta: el diseño en el iPad', style: 'Backstage', sort: 10, visible: true },
+    { id: 'n2', kind: 'photo', src: 'media/foto-2.webp', poster: '', title: 'Sesión de brazo', style: 'Fine line', sort: 11, visible: true },
+    { id: 'n3', kind: 'photo', src: 'media/foto-3.webp', poster: '', title: 'Cristhian en el estudio', style: 'Backstage', sort: 12, visible: true },
+    { id: 'n4', kind: 'photo', src: 'media/foto-4.webp', poster: '', title: 'Concentración', style: 'Backstage', sort: 13, visible: true },
+    { id: 'n5', kind: 'photo', src: 'media/foto-5.webp', poster: '', title: 'Trazando la pieza', style: 'Fine line', sort: 14, visible: true },
+    { id: 'n6', kind: 'photo', src: 'media/foto-6.webp', poster: '', title: 'Resultado: brazo completo', style: 'Microrealismo', sort: 15, visible: true },
+    { id: 'n7', kind: 'photo', src: 'media/foto-7.webp', poster: '', title: 'Sesión en el estudio', style: 'Fine line', sort: 16, visible: true },
     { id: 'c0', kind: 'video', src: 'media/clip-estudio.mp4', poster: 'media/clip-estudio.jpg', title: 'Sesión en el estudio · costillas', style: 'Blackwork', sort: 0, visible: true },
     { id: 'c1', kind: 'video', src: 'media/clip-sesion.mp4', poster: 'media/clip-sesion.jpg', title: 'Sesión en el estudio', style: 'Blackwork', sort: 1, visible: true },
     { id: 'c2', kind: 'video', src: 'media/clip-detalle.mp4', poster: 'media/clip-detalle.jpg', title: 'Línea a línea', style: 'Realismo black & grey', sort: 2, visible: true },
