@@ -4,8 +4,9 @@
 -- Se puede ejecutar más de una vez sin romper nada.
 -- =====================================================================
 
-create extension if not exists btree_gist;
-create extension if not exists pgcrypto;
+create schema if not exists extensions;
+create extension if not exists btree_gist with schema extensions;
+create extension if not exists pgcrypto with schema extensions;
 
 -- ---------- Ajustes (una sola fila con todo en JSON) ----------
 create table if not exists public.settings (

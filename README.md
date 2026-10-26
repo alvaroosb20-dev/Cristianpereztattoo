@@ -34,9 +34,11 @@ Los 50 € son **a cuenta** del precio final (configurable en *Precios y señal*
 Crea un repositorio (por ejemplo `cristhian-perez-tattoo`) y sube **todo el contenido de esta carpeta** (no la carpeta en sí: `index.html` debe quedar en la raíz).
 
 ### 2. Supabase (base de datos + fotos de diseños)
+> **Ya hecho:** proyecto `cristhian-perez-tattoo` creado (región Irlanda) con todas las tablas, buckets y productos de ejemplo. URL: `https://ihyvszeikhvcunswrdfa.supabase.co`. Solo falta copiar la clave secreta (paso 3 de abajo).
+
 1. [supabase.com](https://supabase.com) → **New project** (región: West EU / Frankfurt o Irlanda).
 2. **SQL Editor → New query** → pega el contenido de `supabase/schema.sql` → **Run**. Crea las tablas, la regla anti‑solapes, los buckets de fotos (`designs` privado, `media` público) y los productos y trabajos de ejemplo.
-3. **Project Settings → API**: copia la **Project URL** y la clave **service_role** (la secreta).
+3. **Project Settings → API Keys**: copia la clave **secreta** (`sb_secret_…`, o la `service_role` en la pestaña de claves antiguas). Sirve cualquiera de las dos.
 
 ### 3. Stripe (pagos)
 1. [dashboard.stripe.com](https://dashboard.stripe.com) → **Developers → API keys** → copia la **Secret key** (`sk_test_…` para probar).

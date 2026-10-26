@@ -62,13 +62,17 @@ class HttpError extends Error {
 }
 
 // ---------- Supabase (PostgREST + Storage) ----------
+// Acepta la clave secreta nueva (sb_secret_…, solo va en «apikey») y la service_role antigua (JWT, también como Bearer).
+function sbAuth() {
+  const k = env.SUPABASE_SERVICE_ROLE_KEY;
+  return k.startsWith('eyJ') ? { apikey: k, Authorization: `Bearer ${k}` } : { apikey: k };
+}
 async function db(path, { method = 'GET', body, prefer, headers } = {}) {
   if (!hasDb()) throw new HttpError(503, 'La base de datos no está configurada.');
   const r = await fetch(`${env.SUPABASE_URL}/rest/v1/${path}`, {
     method,
     headers: {
-      apikey: env.SUPABASE_SERVICE_ROLE_KEY,
-      Authorization: `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}`,
+      ...sbAuth(),
       'Content-Type': 'application/json',
       ...(prefer ? { Prefer: prefer } : {}),
       ...(headers || {}),
@@ -91,8 +95,7 @@ async function storageUpload(bucket, path, buffer, contentType) {
   const r = await fetch(`${env.SUPABASE_URL}/storage/v1/object/${bucket}/${path}`, {
     method: 'POST',
     headers: {
-      apikey: env.SUPABASE_SERVICE_ROLE_KEY,
-      Authorization: `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}`,
+      ...sbAuth(),
       'Content-Type': contentType,
       'x-upsert': 'false',
       'cache-control': '31536000',
@@ -107,7 +110,7 @@ async function storageDelete(bucket, path) {
   try {
     await fetch(`${env.SUPABASE_URL}/storage/v1/object/${bucket}/${path}`, {
       method: 'DELETE',
-      headers: { apikey: env.SUPABASE_SERVICE_ROLE_KEY, Authorization: `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}` },
+      headers: sbAuth(),
     });
   } catch (e) { console.error('storageDelete', e); }
 }
@@ -117,8 +120,7 @@ async function storageSignedUrl(bucket, path, expiresIn = 3600) {
   const r = await fetch(`${env.SUPABASE_URL}/storage/v1/object/sign/${bucket}/${path}`, {
     method: 'POST',
     headers: {
-      apikey: env.SUPABASE_SERVICE_ROLE_KEY,
-      Authorization: `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}`,
+      ...sbAuth(),
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({ expiresIn }),
