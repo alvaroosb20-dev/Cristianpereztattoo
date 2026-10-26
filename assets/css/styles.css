@@ -472,3 +472,16 @@ p { margin: 0 0 1em; }
 .cookie-actions { display: flex; gap: .5rem; flex-wrap: wrap; justify-content: flex-end; }
 .cookie-actions .btn { min-height: 42px; padding: 0 1.1em; font-size: .74rem; }
 @media (max-width: 760px) { .cookie-inner { grid-template-columns: 1fr; } .cookie-actions .btn { flex: 1 1 40%; } }
+
+/* Pantalla «Preparando web» */
+body.is-maintenance::before { display: none; }
+.mnt { min-height: 100vh; min-height: 100dvh; display: grid; grid-template-rows: auto 1fr auto; gap: 2rem;
+  padding: calc(env(safe-area-inset-top, 0px) + 20px) max(16px, env(safe-area-inset-right, 0px)) calc(env(safe-area-inset-bottom, 0px) + 20px) max(16px, env(safe-area-inset-left, 0px)); }
+.mnt-top, .mnt-foot { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; color: var(--mute); }
+.mnt-center { align-self: center; max-width: var(--max); width: 100%; margin: 0 auto; display: flex; flex-direction: column; gap: 1.4rem; }
+.mnt-title { font-size: clamp(2.8rem, 12.5vw, 11rem); overflow-wrap: anywhere; }
+.mnt-bar { height: 2px; background: var(--line); overflow: hidden; max-width: 520px; }
+.mnt-bar span { display: block; height: 100%; width: 35%; background: var(--fg); animation: mntbar 2.4s var(--ease) infinite; }
+@keyframes mntbar { 0% { transform: translateX(-100%); } 100% { transform: translateX(300%); } }
+.mnt-msg { font-size: clamp(1.05rem, 2vw, 1.3rem); max-width: 46ch; margin: 0; }
+.mnt-actions { display: flex; gap: .7rem; flex-wrap: wrap; }

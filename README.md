@@ -90,6 +90,9 @@ Mientras falte Supabase o Stripe, la web se ve entera en **modo vista previa** (
 
 ---
 
+## Pantalla «Preparando web»
+En el panel → **Preparando web** hay un interruptor. Al activarlo, los visitantes solo ven una pantalla de espera con el título y el mensaje que elijas, y botones de WhatsApp e Instagram. Quien haya entrado al panel sigue viendo la web completa para revisarla.
+
 ## Probar los pagos (modo test)
 Tarjeta `4242 4242 4242 4242`, fecha futura, cualquier CVC. Comprueba:
 1. Reserva → Stripe → vuelves a «Reserva confirmada» con referencia → la cita aparece en el panel como *Pendiente*.

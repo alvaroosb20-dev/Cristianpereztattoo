@@ -28,7 +28,7 @@ function publicSettings(s) {
     studio: s.studio, about: s.about, announcement: s.announcement,
     deposit_cents: s.deposit_cents, deposit_deducted: s.deposit_deducted,
     sizes: s.sizes, styles: s.styles, body_zones: s.body_zones,
-    schedule: s.schedule, shipping: s.shipping, texts: s.texts,
+    schedule: s.schedule, shipping: s.shipping, texts: s.texts, maintenance: s.maintenance,
   };
 }
 

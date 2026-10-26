@@ -64,8 +64,19 @@
   CP.loadSite = () => {
     if (CP._sitePromise) return CP._sitePromise;
     CP._sitePromise = CP.api('site')
+      .then((d) => { if (!d || !d.settings) throw new Error('sin api'); return d; })
       .catch(() => {
+        // Vista previa sin servidor: datos de ejemplo, o lo que se haya cambiado en el panel en modo demostración
         const S = window.CPSeed;
+        const demo = CP.store.get('cp_admin_demo_v1', null);
+        if (demo) {
+          const merged = JSON.parse(JSON.stringify(S.DEFAULT_SETTINGS));
+          Object.entries(demo.settings || {}).forEach(([k, v]) => { merged[k] = v && typeof v === 'object' && !Array.isArray(v) && merged[k] && typeof merged[k] === 'object' ? { ...merged[k], ...v } : v; });
+          return { mode: 'preview', payments: false, viewer_is_admin: Boolean(CP.session.get('cp_admin_demo_login', false)), settings: merged,
+            products: (demo.products || S.PRODUCTS).filter((p) => p.active !== false).sort((a, b) => (a.sort || 0) - (b.sort || 0)),
+            portfolio: (demo.portfolio || S.PORTFOLIO).filter((p) => p.visible !== false).sort((a, b) => (a.sort || 0) - (b.sort || 0)),
+            reviews: (demo.reviews || []).filter((r) => r.visible !== false) };
+        }
         return { mode: 'preview', payments: false, settings: S.DEFAULT_SETTINGS, products: S.PRODUCTS, portfolio: S.PORTFOLIO, reviews: [] };
       })
       .then((d) => { CP.site = d; return d; });
@@ -192,7 +203,7 @@
           </ul>
         </div>
       </div>
-      <div class="footer-base mono"><span>© ${year} ${CP.esc(st.name)}</span><span><button class="link mono" type="button" data-cookie-settings>Configurar cookies</button> · Pagos seguros con Stripe</span></div>
+      <div class="footer-base mono"><span>© ${year} ${CP.esc(st.name)}</span><span><button class="link mono" type="button" data-cookie-settings>Configurar cookies</button> · <a class="link mono" href="${CP.root}admin/index.html" rel="nofollow">Acceso estudio</a></span></div>
     </div></footer>`;
   }
 
@@ -391,8 +402,34 @@
     return { get, set, allowed, open, init };
   })();
 
+  // ---------- Pantalla «Preparando web» ----------
+  function maintenanceScreen(site) {
+    const s = site.settings, st = s.studio, m = s.maintenance || {};
+    const wa = (st.whatsapp || '').replace(/\D/g, '');
+    document.title = `${m.title || 'Preparando web'} · ${st.name}`;
+    document.body.classList.add('is-maintenance');
+    document.body.innerHTML = `
+      <main class="mnt">
+        <div class="mnt-top label"><span>${CP.esc(st.name)}</span><span>${CP.esc(st.city || '')}</span></div>
+        <div class="mnt-center">
+          <span class="label">[ ${CP.esc(st.artist || 'Cristhian Pérez')} · Tattoo ]</span>
+          <h1 class="display mnt-title">${CP.esc(m.title || 'Preparando web')}</h1>
+          <div class="mnt-bar" aria-hidden="true"><span></span></div>
+          <p class="mnt-msg">${CP.esc(m.message || '')}</p>
+          <div class="mnt-actions">
+            ${wa ? `<a class="btn" href="https://wa.me/${wa}" target="_blank" rel="noopener">WhatsApp</a>` : ''}
+            ${st.instagram ? `<a class="btn btn-ghost" href="https://instagram.com/${CP.esc(st.instagram)}" target="_blank" rel="noopener">@${CP.esc(st.instagram)}</a>` : ''}
+          </div>
+        </div>
+        <div class="mnt-foot label"><span>[ ${CP.esc(st.address || st.city || '')} ]</span><span>${CP.esc(st.phone || '')}</span></div>
+      </main>`;
+  }
+
   CP.ready = (fn) => {
     CP.loadSite().then((site) => {
+      const m = site.settings.maintenance;
+      if (m && m.on && !site.viewer_is_admin) { maintenanceScreen(site); return; }
+      if (m && m.on && site.viewer_is_admin) document.body.insertAdjacentHTML('afterbegin', `<div class="demo-flag mono">Modo «Preparando web» activo: los visitantes ven la pantalla de espera. Tú ves la web porque has entrado al panel. <a href="${CP.root}admin/index.html#preparando" style="color:inherit">Cambiar</a></div>`);
       const h = CP.$('#site-header'), f = CP.$('#site-footer');
       if (h) h.outerHTML = header(site);
       if (f) f.outerHTML = footer(site);

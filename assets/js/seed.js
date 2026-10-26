@@ -21,6 +21,11 @@
       'Cristhian Pérez tatúa desde Tenerife con una idea fija: que cada pieza tenga composición, contraste y una razón de ser. ' +
       'Trabaja realismo en negro y grises, fine line y diseños propios con aire de collage editorial, de la estatua clásica a la tipografía de revista.\n\n' +
       'Cada proyecto empieza con una conversación. Cuéntale tu idea, adjunta referencias y él te propone el diseño, el tamaño y la zona que mejor van a envejecer en tu piel.',
+    maintenance: {
+      on: false,
+      title: 'Preparando web',
+      message: 'Estamos preparando la nueva web del estudio. Mientras tanto, pide tu cita por WhatsApp o Instagram.',
+    },
     announcement: 'Reserva tu cita con una señal de 50 € · Envíos a toda España · Tienda oficial',
     deposit_cents: 5000,
     deposit_deducted: true,

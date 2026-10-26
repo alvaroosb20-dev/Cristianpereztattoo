@@ -1,6 +1,8 @@
 /* Panel de administración. Todo pasa por /api/admin/* con sesión de cookie HttpOnly. */
 (function () {
-  const { $, $$, esc, euros, api, toast } = CP;
+  const { $, $$, esc, euros, toast } = CP;
+  let demo = false;
+  const api = (path, opts) => (demo ? Demo.handle(path, opts || {}) : CP.api(path, opts));
   const A = window.CPAvail;
   const app = $('#app');
   const toCents = (v) => Math.round(parseFloat(String(v).replace(',', '.')) * 100) || 0;
@@ -11,13 +13,122 @@
   const pill = (s, map) => `<span class="pill ${esc(s)}">${esc((map || STATUS_ES)[s] || s)}</span>`;
   let settings = null, health = {};
 
+
+  // ---------- Modo demostración (vista previa sin servidor) ----------
+  // Si la web se abre sin las funciones de Vercel, el panel funciona igual con los datos guardados en este dispositivo.
+  // Lo que cambies aquí se ve en la vista previa de la web. Con Supabase conectado, todo se guarda de verdad.
+  const Demo = (() => {
+    const KEY = 'cp_admin_demo_v1';
+    const S = window.CPSeed;
+    const uid = () => (crypto.randomUUID ? crypto.randomUUID() : 'id-' + Math.random().toString(36).slice(2) + Date.now());
+    const clone = (o) => JSON.parse(JSON.stringify(o));
+    function initial() {
+      const today = A.canaryNow().date;
+      const day = (n) => A.addDays(today, n);
+      const settings = clone(S.DEFAULT_SETTINGS);
+      return {
+        settings,
+        products: clone(S.PRODUCTS).map((p) => ({ ...p, id: uid(), created_at: new Date().toISOString() })),
+        portfolio: clone(S.PORTFOLIO).map((p) => ({ ...p, id: uid() })),
+        reviews: [], blocked: [], orders: [],
+        bookings: [
+          { id: uid(), ref: 'CP-EJEMPLO1', status: 'pending', name: 'Cliente de ejemplo', email: 'cliente@ejemplo.com', phone: '+34 600 000 000', style: 'Fine line', body_zone: 'Antebrazo', size_id: 'mediano', size_label: 'Mediano (10 – 15 cm)', description: 'Cita de ejemplo para ver cómo funciona el panel.', design_path: null, appt_date: day(3), start_min: 660, end_min: 840, estimated_price_cents: 18000, final_price_cents: null, deposit_cents: 5000, deposit_paid: true, payment_status: 'paid', paid_at: new Date().toISOString(), terms_accepted_at: new Date().toISOString(), terms_hash: 'ejemplo', created_at: new Date().toISOString() },
+          { id: uid(), ref: 'CP-EJEMPLO2', status: 'confirmed', name: 'Otro cliente de ejemplo', email: 'otro@ejemplo.com', phone: '+34 600 000 001', style: 'Blackwork', body_zone: 'Pierna', size_id: 'grande', size_label: 'Grande (15 – 25 cm)', description: 'Cita confirmada de ejemplo.', design_path: null, appt_date: day(6), start_min: 720, end_min: 1020, estimated_price_cents: 30000, final_price_cents: 32000, deposit_cents: 5000, deposit_paid: true, payment_status: 'paid', paid_at: new Date().toISOString(), terms_accepted_at: new Date().toISOString(), terms_hash: 'ejemplo', created_at: new Date().toISOString() },
+        ],
+      };
+    }
+    let db = CP.store.get(KEY, null) || initial();
+    const save = () => { try { localStorage.setItem(KEY, JSON.stringify(db)); } catch (e) { throw Object.assign(new Error('No queda espacio en este dispositivo para más fotos de demostración. Usa fotos más pequeñas o borra alguna.'), { status: 413 }); } };
+    save();
+    const err = (status, message) => Promise.reject(Object.assign(new Error(message), { status }));
+    const TABLE = { products: 'products', portfolio: 'portfolio', reviews: 'reviews', blocked: 'blocked', orders: 'orders' };
+    function handle(path, opts) {
+      const u = new URL(path, 'http://x/');
+      const route = u.pathname.slice(1);
+      const q = u.searchParams;
+      const method = opts.method || 'GET';
+      const body = opts.body || {};
+      try {
+        if (route === 'admin/auth') { if (method !== 'DELETE') CP.session.set('cp_admin_demo_login', true); else CP.session.del('cp_admin_demo_login'); return Promise.resolve({ ok: true, demo: true, db: false, stripe: false, email: false }); }
+        if (route === 'admin/settings') {
+          if (method === 'PUT') { Object.assign(db.settings, clone(body)); save(); }
+          return Promise.resolve(clone(db.settings));
+        }
+        if (route === 'admin/upload') return Promise.resolve({ url: body.image });
+        if (route === 'admin/bookings') {
+          if (method === 'GET') {
+            if (q.get('id')) { const b = db.bookings.find((x) => x.id === q.get('id')); return b ? Promise.resolve({ ...clone(b), design_url: null }) : err(404, 'No existe'); }
+            let list = db.bookings.slice();
+            if (q.get('status')) { const st = q.get('status').split(','); list = list.filter((b) => st.includes(b.status)); }
+            if (q.get('from')) list = list.filter((b) => b.appt_date >= q.get('from'));
+            if (q.get('to')) list = list.filter((b) => b.appt_date <= q.get('to'));
+            list.sort((a, b) => (a.appt_date + a.start_min).localeCompare(b.appt_date + b.start_min));
+            const counts = {}; db.bookings.forEach((b) => { counts[b.status] = (counts[b.status] || 0) + 1; });
+            return Promise.resolve({ bookings: clone(list), counts });
+          }
+          const overlaps = (date, s1, e1, ignore) => db.bookings.some((b) => b.id !== ignore && b.appt_date === date && ['pending_payment', 'pending', 'confirmed'].includes(b.status) && s1 < b.end_min && e1 > b.start_min);
+          if (method === 'POST') {
+            const size = db.settings.sizes.find((z) => z.id === body.size_id) || db.settings.sizes[0];
+            const dur = Number(body.duration_min) || size.duration_min;
+            if (!body.name || !body.appt_date) return err(400, 'Faltan nombre, día u hora.');
+            if (overlaps(body.appt_date, body.start_min, body.start_min + dur)) return err(409, 'Esa franja se solapa con otra cita.');
+            const row = { id: uid(), ref: 'CP-' + Math.random().toString(36).slice(2, 8).toUpperCase(), status: 'confirmed', ...body, size_label: `${size.label} (${size.detail})`, end_min: body.start_min + dur, deposit_cents: 0, deposit_paid: false, payment_status: 'manual', created_at: new Date().toISOString() };
+            db.bookings.push(row); save(); return Promise.resolve(row);
+          }
+          if (method === 'PATCH') {
+            const b = db.bookings.find((x) => x.id === body.id);
+            if (!b) return err(404, 'No existe');
+            const map = { approve: 'confirmed', reject: 'rejected', complete: 'completed', cancel: 'cancelled' };
+            if (body.action === 'reschedule') {
+              const dur = Number(body.duration_min) || (b.end_min - b.start_min);
+              if (overlaps(body.appt_date, body.start_min, body.start_min + dur, b.id)) return err(409, 'Esa franja se solapa con otra cita.');
+              Object.assign(b, { appt_date: body.appt_date, start_min: body.start_min, end_min: body.start_min + dur });
+            } else if (map[body.action]) b.status = map[body.action];
+            if (body.final_price_cents !== undefined) b.final_price_cents = body.final_price_cents;
+            if (body.admin_notes !== undefined) b.admin_notes = body.admin_notes;
+            if (body.refund) b.payment_status = 'refunded';
+            save(); return Promise.resolve(clone(b));
+          }
+        }
+        if (route === 'admin/collection') {
+          const t = TABLE[q.get('type')];
+          if (!t) return err(400, 'Tipo no válido');
+          if (method === 'GET') {
+            let list = db[t].slice();
+            if (q.get('status')) { const st = q.get('status').split(','); list = list.filter((o) => st.includes(o.status)); }
+            list.sort((a, b) => (a.sort || 0) - (b.sort || 0));
+            return Promise.resolve(clone(list));
+          }
+          if (method === 'POST') {
+            const row = { id: uid(), created_at: new Date().toISOString(), ...clone(body) };
+            if (t === 'products' && !row.slug) row.slug = String(row.name || 'producto').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') + '-' + row.id.slice(0, 4);
+            if (t === 'blocked' && !row.date_to) row.date_to = row.date_from;
+            db[t].push(row); save(); return Promise.resolve(row);
+          }
+          if (method === 'PATCH') { const r = db[t].find((x) => x.id === body.id); if (!r) return err(404, 'No existe'); Object.assign(r, clone(body)); save(); return Promise.resolve(clone(r)); }
+          if (method === 'DELETE') { db[t] = db[t].filter((x) => x.id !== q.get('id')); save(); return Promise.resolve({ ok: true }); }
+        }
+        return err(404, 'Ruta no disponible en demostración');
+      } catch (e) { return Promise.reject(e); }
+    }
+    function reset() { db = initial(); save(); }
+    return { handle, reset };
+  })();
+
   // ---------- Login ----------
   async function boot() {
-    try { health = await api('admin/auth'); start(); }
-    catch (e) { login(e.status === 503 ? e.message : ''); }
+    try {
+      const r = await CP.api('admin/auth');
+      if (!r) throw Object.assign(new Error('sin api'), { status: 0 });
+      health = r; start();
+    } catch (e) {
+      if (!e.status || e.status === 404 || e.status === 405) { demo = true; return login('', true); }
+      login(e.status === 503 ? e.message : '');
+    }
   }
-  function login(msg) {
+  function login(msg, isDemo) {
     app.innerHTML = `<div class="login"><form id="login-form">
+      ${isDemo ? '<div class="notice">Modo demostración: esta vista previa no tiene servidor, así que el panel guarda los cambios solo en este dispositivo. Entra con cualquier contraseña.</div>' : ''}
       <span class="brand" style="justify-self:start;text-align:left"><span class="brand-name">Cristhian Pérez</span><span class="brand-sub" style="padding-left:0">Panel del estudio</span></span>
       <h1 class="display h3" style="margin:.6rem 0 0">Entrar</h1>
       ${msg ? `<div class="notice error">${esc(msg)}</div>` : ''}
@@ -29,7 +140,7 @@
     $('#login-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       const b = e.submitter; b.classList.add('is-loading');
-      try { await api('admin/auth', { method: 'POST', body: { password: $('#pw').value } }); boot(); }
+      try { await api('admin/auth', { method: 'POST', body: { password: $('#pw').value } }); if (demo) { health = { demo: true }; start(); } else boot(); }
       catch (err) { $('#login-err').innerHTML = `<div class="notice error">${esc(err.message)}</div>`; b.classList.remove('is-loading'); }
     });
     $('#pw').focus();
@@ -37,7 +148,7 @@
 
   // ---------- Estructura ----------
   const TABS = [
-    ['citas', 'Citas'], ['calendario', 'Calendario'], ['horario', 'Horario y bloqueos'], ['precios', 'Precios y señal'],
+    ['citas', 'Citas'], ['preparando', 'Preparando web'], ['calendario', 'Calendario'], ['horario', 'Horario y bloqueos'], ['precios', 'Precios y señal'],
     ['productos', 'Productos'], ['pedidos', 'Pedidos'], ['portafolio', 'Portafolio'], ['opiniones', 'Opiniones'], ['estudio', 'Estudio y textos'],
   ];
   let tab = (location.hash || '#citas').slice(1);
@@ -49,6 +160,7 @@
         <a class="brand" href="../index.html" target="_blank" rel="noopener"><span class="brand-name">Cristhian Pérez</span><span class="brand-sub" style="padding-left:0">Panel</span></a>
         ${TABS.map(([k, t]) => `<button class="adm-tab" type="button" data-tab="${k}">${t}<span class="badge" data-badge="${k}" hidden></span></button>`).join('')}
         <div class="side-foot mono">
+          ${health.demo ? '<span class="mono">Modo demostración</span>' : ''}
           <span class="status-dot ${health.db ? 'on' : ''}">Base de datos</span>
           <span class="status-dot ${health.stripe ? 'on' : ''}">Stripe</span>
           <span class="status-dot ${health.email ? 'on' : ''}">Correo</span>
@@ -58,6 +170,7 @@
       <main class="adm-main" id="view"></main>
     </div>`;
     $$('[data-tab]').forEach((b) => b.addEventListener('click', () => { tab = b.dataset.tab; history.replaceState(null, '', '#' + tab); show(); }));
+    renderWebState();
     $('#logout').addEventListener('click', async () => { await api('admin/auth', { method: 'DELETE' }); login(); });
     show();
     refreshBadge();
@@ -69,12 +182,19 @@
       b.textContent = r.bookings.length; b.hidden = !r.bookings.length;
     } catch {}
   }
+  function renderWebState() {
+    const b = $('[data-badge="preparando"]');
+    if (!b) return;
+    const on = settings && settings.maintenance && settings.maintenance.on;
+    b.textContent = on ? 'ON' : ''; b.hidden = !on;
+  }
   function show() {
     $$('[data-tab]').forEach((b) => b.setAttribute('aria-current', b.dataset.tab === tab));
     const v = $('#view');
     v.innerHTML = '<p class="muted">Cargando…</p>';
-    const views = { citas, calendario, horario, precios, productos, pedidos, portafolio, opiniones, estudio };
-    (views[tab] || citas)(v).catch((e) => { v.innerHTML = `<div class="notice error">${esc(e.message)}</div>`; if (e.status === 401) login('Tu sesión ha caducado.'); });
+
+    const views = { citas, preparando, calendario, horario, precios, productos, pedidos, portafolio, opiniones, estudio };
+    (views[tab] || citas)(v).then(() => { if (health.demo && tab !== 'preparando' && !v.querySelector('[data-demo-reset]')) v.insertAdjacentHTML('afterbegin', demoNotice()); }).catch((e) => { v.innerHTML = `<div class="notice error">${esc(e.message)}</div>`; if (e.status === 401) login('Tu sesión ha caducado.'); });
   }
   async function saveSettings(patch, btn) {
     if (btn) btn.classList.add('is-loading');
@@ -95,6 +215,54 @@
   }
   function closeDrawer() { $$('.drawer, .drawer-bg').forEach((e) => e.remove()); document.body.style.overflow = ''; }
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeDrawer(); });
+
+
+  // ---------- PREPARANDO WEB ----------
+  async function preparando(v) {
+    const m = settings.maintenance || { on: false, title: 'Preparando web', message: '' };
+    v.innerHTML = `
+      ${health.demo ? demoNotice() : ''}
+      <div class="adm-head"><h1>Preparando web</h1></div>
+      <div class="box" style="margin-bottom:1.4rem">
+        <div class="web-state ${m.on ? 'on' : ''}">
+          <span class="label">[ Estado de la web ]</span>
+          <strong>${m.on ? 'Pantalla «Preparando web» activada' : 'Web abierta al público'}</strong>
+          <span class="muted">${m.on ? 'Los visitantes solo ven la pantalla de espera. Tú puedes ver la web completa porque has entrado al panel.' : 'Todo el mundo ve la web completa: tienda, reservas y portafolio.'}</span>
+        </div>
+        <label class="switch"><input type="checkbox" id="mt-on" ${m.on ? 'checked' : ''}><span class="switch-ui" aria-hidden="true"></span><span>Activar pantalla «Preparando web»</span></label>
+      </div>
+      <div class="box" style="margin-bottom:1.4rem">
+        <span class="label">Texto de la pantalla</span>
+        <label class="field"><span class="label muted">Título</span><input class="input" id="mt-title" value="${esc(m.title || 'Preparando web')}"></label>
+        <label class="field"><span class="label muted">Mensaje</span><textarea class="textarea" id="mt-msg" style="min-height:90px">${esc(m.message || '')}</textarea></label>
+        <span class="mono muted" style="font-size:.72rem">Debajo salen automáticamente los botones de WhatsApp e Instagram y la dirección del estudio.</span>
+      </div>
+      <div class="box">
+        <span class="label">Así la verán los visitantes</span>
+        <div class="mnt-preview">
+          <span class="label muted">[ ${esc(settings.studio.artist)} · Tattoo ]</span>
+          <div class="display" id="mt-prev-title" style="font-size:clamp(2.2rem,7vw,4.4rem)">${esc(m.title || 'Preparando web')}</div>
+          <div class="mnt-bar" aria-hidden="true"><span></span></div>
+          <p id="mt-prev-msg" style="margin:0;max-width:46ch">${esc(m.message || '')}</p>
+          <div class="row-actions"><span class="btn" style="pointer-events:none">WhatsApp</span><span class="btn btn-ghost" style="pointer-events:none">@${esc(settings.studio.instagram || '')}</span></div>
+        </div>
+      </div>
+      <div class="save-bar"><button class="btn btn-gold" type="button" id="mt-save">Guardar</button><a class="link mono" href="../index.html" target="_blank" rel="noopener">Ver la web</a></div>`;
+    $('#mt-title').addEventListener('input', (e) => { $('#mt-prev-title').textContent = e.target.value || 'Preparando web'; });
+    $('#mt-msg').addEventListener('input', (e) => { $('#mt-prev-msg').textContent = e.target.value; });
+    $('#mt-save').addEventListener('click', async (e) => {
+      await saveSettings({ maintenance: { on: $('#mt-on').checked, title: $('#mt-title').value.trim() || 'Preparando web', message: $('#mt-msg').value.trim() } }, e.target);
+      renderWebState(); preparando(v);
+    });
+    $('#mt-on').addEventListener('change', async (e) => {
+      await saveSettings({ maintenance: { on: e.target.checked, title: $('#mt-title').value.trim() || 'Preparando web', message: $('#mt-msg').value.trim() } });
+      renderWebState(); preparando(v);
+    });
+  }
+  function demoNotice() {
+    return `<div class="notice" style="margin-bottom:1.2rem">Modo demostración: los cambios se guardan solo en este dispositivo y se ven en la vista previa. Cuando la web esté publicada con Supabase, se guardarán para todos. <button class="link" type="button" data-demo-reset>Restablecer datos de ejemplo</button></div>`;
+  }
+  document.addEventListener('click', (e) => { if (e.target.closest('[data-demo-reset]')) { Demo.reset(); location.reload(); } });
 
   // ---------- CITAS ----------
   const GROUPS = [
@@ -415,7 +583,7 @@
     $('#e-imgs', d).addEventListener('click', (e) => { const b = e.target.closest('[data-rmimg]'); if (b) { images.splice(Number(b.dataset.rmimg), 1); drawImgs(); } });
     $('#e-file', d).addEventListener('change', async (e) => {
       const f = e.target.files[0]; if (!f) return;
-      try { toast('Subiendo…'); const data = await resize(f, 1600); const r = await api('admin/upload', { method: 'POST', body: { image: data, folder: 'products' } }); images.push(r.url); drawImgs(); toast('Foto subida'); }
+      try { toast('Subiendo…'); const data = await resize(f, 1600); const r = await api('admin/upload', { method: 'POST', body: { image: data, folder: 'products' } }); images.unshift(r.url); drawImgs(); toast("Foto subida: es la foto principal"); }
       catch (err) { toast(err.message); }
     });
     $('#e-save', d).addEventListener('click', async (e) => {

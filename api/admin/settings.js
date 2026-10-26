@@ -3,7 +3,7 @@ const core = require('../_lib/core');
 const auth = require('../_lib/auth');
 const data = require('../_lib/data');
 
-const ALLOWED = ['studio', 'about', 'announcement', 'deposit_cents', 'deposit_deducted', 'sizes', 'styles', 'body_zones', 'schedule', 'shipping', 'texts'];
+const ALLOWED = ['studio', 'about', 'announcement', 'deposit_cents', 'deposit_deducted', 'sizes', 'styles', 'body_zones', 'schedule', 'shipping', 'texts', 'maintenance'];
 
 module.exports = core.wrap(async (req, res) => {
   auth.requireAdmin(req);
