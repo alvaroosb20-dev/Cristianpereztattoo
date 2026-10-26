@@ -266,3 +266,6 @@ select * from (values
   ('photo', 'media/foto-7.webp', '', 'Sesión en el estudio', 'Fine line', 16)
 ) v(kind, src, poster, title, style, sort)
 where not exists (select 1 from public.portfolio p where p.src = v.src);
+
+-- El vídeo que estaba en la portada pasa a ser el primero del portafolio
+update public.portfolio set sort = -2, visible = true where src = 'media/clip-sesion.mp4';

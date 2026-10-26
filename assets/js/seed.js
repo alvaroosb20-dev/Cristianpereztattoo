@@ -165,7 +165,7 @@
     { id: 'n6', kind: 'photo', src: 'media/foto-6.webp', poster: '', title: 'Resultado: brazo completo', style: 'Microrealismo', sort: 15, visible: true },
     { id: 'n7', kind: 'photo', src: 'media/foto-7.webp', poster: '', title: 'Sesión en el estudio', style: 'Fine line', sort: 16, visible: true },
     { id: 'c0', kind: 'video', src: 'media/clip-estudio.mp4', poster: 'media/clip-estudio.jpg', title: 'Sesión en el estudio · costillas', style: 'Blackwork', sort: 0, visible: true },
-    { id: 'c1', kind: 'video', src: 'media/clip-sesion.mp4', poster: 'media/clip-sesion.jpg', title: 'Sesión en el estudio', style: 'Blackwork', sort: 1, visible: true },
+    { id: 'c1', kind: 'video', src: 'media/clip-sesion.mp4', poster: 'media/clip-sesion.jpg', title: 'Sesión en el estudio', style: 'Blackwork', sort: -2, visible: true },
     { id: 'c2', kind: 'video', src: 'media/clip-detalle.mp4', poster: 'media/clip-detalle.jpg', title: 'Línea a línea', style: 'Realismo black & grey', sort: 2, visible: true },
     { id: 'c3', kind: 'video', src: 'media/clip-llegada.mp4', poster: 'media/clip-llegada.jpg', title: 'Un día con Cristhian', style: 'Backstage', sort: 3, visible: true },
     { id: 'p1', kind: 'video', src: 'media/video-1.mp4', poster: 'media/video-1.jpg', title: 'Sesión en el estudio · fine line', style: 'Fine line', sort: 4, visible: true },
