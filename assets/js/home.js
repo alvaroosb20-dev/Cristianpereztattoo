@@ -35,12 +35,24 @@ CP.ready((site) => {
   const wa = (st.whatsapp || '').replace(/\D/g, '');
   const mapsQ = encodeURIComponent(st.maps_query || st.address || st.city);
   const mapsDir = `https://www.google.com/maps/dir/?api=1&destination=${mapsQ}`;
-  CP.$('#map').innerHTML = `
-    <div class="map-frame">
-      <div class="map-fallback"><span class="label">[ Mapa ]</span><p>${CP.esc(st.address || st.city)}</p><a class="link" href="${mapsDir}" target="_blank" rel="noopener">Abrir en Google Maps</a></div>
-      <iframe title="Mapa de Google: ${CP.esc(st.address || st.city)}" src="https://www.google.com/maps?q=${mapsQ}&hl=es&z=17&output=embed" loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe>
-    </div>
-    <div class="map-bar"><span class="label">[ ${CP.esc(st.address || st.city)} ]</span><a class="btn" href="${mapsDir}" target="_blank" rel="noopener">Cómo llegar</a></div>`;
+  const mapEl = CP.$('#map');
+  const drawMap = () => {
+    const ok = CP.consent.allowed('maps');
+    mapEl.innerHTML = `
+      <div class="map-frame">
+        <div class="map-fallback">
+          <span class="label">[ Mapa ]</span>
+          <p>${CP.esc(st.address || st.city)}</p>
+          ${ok ? `<a class="link" href="${mapsDir}" target="_blank" rel="noopener">Abrir en Google Maps</a>` : `<button class="btn btn-ghost" type="button" data-load-map>Ver mapa</button><span class="mono" style="max-width:34ch;font-size:.72rem">Al cargarlo, Google puede instalar cookies. <a class="link" href="legal.html?doc=cookies">Más información</a></span>`}
+        </div>
+        ${ok ? `<iframe title="Mapa de Google: ${CP.esc(st.address || st.city)}" src="https://www.google.com/maps?q=${mapsQ}&hl=es&z=17&output=embed" loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe>` : ''}
+      </div>
+      <div class="map-bar"><span class="label">[ ${CP.esc(st.address || st.city)} ]</span><a class="btn" href="${mapsDir}" target="_blank" rel="noopener">Cómo llegar</a></div>`;
+    const b = CP.$('[data-load-map]', mapEl);
+    if (b) b.addEventListener('click', () => { const c = CP.consent.get() || {}; CP.consent.set({ maps: true, analytics: Boolean(c.analytics) }); });
+  };
+  drawMap();
+  document.addEventListener('consent:change', drawMap);
   CP.$('#contact').innerHTML = `
     <div><span class="label muted">Dirección</span><p class="v">${CP.esc(st.address || st.city)}</p><a class="link mono" href="${mapsDir}" target="_blank" rel="noopener">Cómo llegar</a></div>
     <div><span class="label muted">Horario</span><p class="v">${CP.esc(st.hours_text)}</p><a class="link mono" href="reservar.html">Ver huecos libres</a></div>

@@ -192,7 +192,7 @@
           </ul>
         </div>
       </div>
-      <div class="footer-base mono"><span>© ${year} ${CP.esc(st.name)}</span><span>Pagos seguros con Stripe</span></div>
+      <div class="footer-base mono"><span>© ${year} ${CP.esc(st.name)}</span><span><button class="link mono" type="button" data-cookie-settings>Configurar cookies</button> · Pagos seguros con Stripe</span></div>
     </div></footer>`;
   }
 
@@ -326,6 +326,71 @@
     </a>`;
   };
 
+  // ---------- Cookies: consentimiento (LSSI art. 22.2 / guía AEPD) ----------
+  CP.consent = (() => {
+    const KEY = 'cp_cookie_consent', VERSION = 1, DAYS = 365;
+    const hasGA = () => Boolean(window.CP_CONFIG && window.CP_CONFIG.GA_ID);
+    function get() {
+      const c = CP.store.get(KEY, null);
+      if (!c || c.v !== VERSION || Date.now() - c.ts > DAYS * 864e5) return null;
+      return c;
+    }
+    function set(choice) {
+      const c = { v: VERSION, ts: Date.now(), maps: Boolean(choice.maps), analytics: Boolean(choice.analytics) };
+      CP.store.set(KEY, c);
+      if (c.analytics && window.CP_loadGA) window.CP_loadGA();
+      document.dispatchEvent(new CustomEvent('consent:change', { detail: c }));
+      close();
+      return c;
+    }
+    const allowed = (k) => { const c = get(); return Boolean(c && c[k]); };
+    let box = null;
+    function close() { if (box) { box.remove(); box = null; } }
+    function open(configure) {
+      close();
+      const c = get() || { maps: false, analytics: false };
+      box = document.createElement('div');
+      box.className = 'cookie-box';
+      box.setAttribute('role', 'dialog');
+      box.setAttribute('aria-label', 'Aviso de cookies');
+      box.innerHTML = `
+        <div class="cookie-inner">
+          <div class="cookie-text">
+            <span class="label">[ Cookies ]</span>
+            <p>Usamos almacenamiento técnico para que la web funcione (carrito, sonido, tu elección). Con tu permiso, cargamos el mapa de Google${hasGA() ? ' y medimos visitas con Google Analytics' : ''}, que instalan cookies de terceros. <a class="link" href="${CP.root}legal.html?doc=cookies">Política de cookies</a></p>
+          </div>
+          <div class="cookie-prefs" ${configure ? '' : 'hidden'}>
+            <label class="check"><input type="checkbox" checked disabled><span><strong>Técnicas</strong> · necesarias, siempre activas</span></label>
+            <label class="check"><input type="checkbox" id="ck-maps" ${c.maps ? 'checked' : ''}><span><strong>Mapa de Google</strong> · muestra la ubicación del estudio</span></label>
+            ${hasGA() ? `<label class="check"><input type="checkbox" id="ck-an" ${c.analytics ? 'checked' : ''}><span><strong>Analítica</strong> · Google Analytics, visitas anónimas</span></label>` : ''}
+          </div>
+          <div class="cookie-actions">
+            <button class="btn btn-ghost" type="button" data-ck="reject">Rechazar</button>
+            <button class="btn btn-ghost" type="button" data-ck="config" ${configure ? 'hidden' : ''}>Configurar</button>
+            <button class="btn btn-ghost" type="button" data-ck="save" ${configure ? '' : 'hidden'}>Guardar selección</button>
+            <button class="btn" type="button" data-ck="accept">Aceptar todo</button>
+          </div>
+        </div>`;
+      box.addEventListener('click', (e) => {
+        const b = e.target.closest('[data-ck]');
+        if (!b) return;
+        const a = b.dataset.ck;
+        if (a === 'accept') set({ maps: true, analytics: true });
+        if (a === 'reject') set({ maps: false, analytics: false });
+        if (a === 'save') set({ maps: CP.$('#ck-maps', box).checked, analytics: Boolean(CP.$('#ck-an', box) && CP.$('#ck-an', box).checked) });
+        if (a === 'config') { CP.$('.cookie-prefs', box).hidden = false; b.hidden = true; CP.$('[data-ck="save"]', box).hidden = false; }
+      });
+      document.body.appendChild(box);
+    }
+    function init() {
+      const c = get();
+      if (!c) open(false);
+      else if (c.analytics && window.CP_loadGA) window.CP_loadGA();
+      document.addEventListener('click', (e) => { if (e.target.closest('[data-cookie-settings]')) { e.preventDefault(); open(true); } });
+    }
+    return { get, set, allowed, open, init };
+  })();
+
   CP.ready = (fn) => {
     CP.loadSite().then((site) => {
       const h = CP.$('#site-header'), f = CP.$('#site-footer');
@@ -334,6 +399,7 @@
       wireMenu();
       CP.cart.render();
       CP.wireVideoCards(document);
+      CP.consent.init();
       try { fn(site); } catch (e) { console.error(e); }
     });
   };
