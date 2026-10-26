@@ -32,7 +32,10 @@ CP.ready(async (site) => {
         ${dl('Diseño', b.design_url ? `<img class="design-thumb" src="${CP.esc(b.design_url)}" alt="Diseño adjuntado" style="margin-left:auto">` : 'Sin adjuntar')}
       </dl>
       ${contact}
-      <div style="display:flex;gap:.8rem;flex-wrap:wrap"><a class="btn" href="index.html">Volver al inicio</a><a class="btn btn-ghost" href="tienda.html">Kit de cuidado</a></div>`;
+      <div style="display:flex;gap:.8rem;flex-wrap:wrap">
+        ${st.whatsapp ? `<a class="btn" href="https://wa.me/${CP.esc(st.whatsapp.replace(/\D/g, ''))}?text=${encodeURIComponent(`Hola Cristhian, acabo de reservar mi cita (ref. ${b.ref}) para el ${b.date_label} a las ${b.time} h. Soy ${b.name}.`)}" target="_blank" rel="noopener">Escribir por WhatsApp</a>` : ''}
+        <a class="btn btn-ghost" href="index.html">Volver al inicio</a>
+      </div>`;
   } else {
     const o = data.order;
     CP.cart.clear();

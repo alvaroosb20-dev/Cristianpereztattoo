@@ -33,13 +33,19 @@ CP.ready((site) => {
 
   const wa = (st.whatsapp || '').replace(/\D/g, '');
   const mapsQ = encodeURIComponent(st.maps_query || st.address || st.city);
+  const mapsDir = `https://www.google.com/maps/dir/?api=1&destination=${mapsQ}`;
+  CP.$('#map').innerHTML = `
+    <a class="map-frame" href="${mapsDir}" target="_blank" rel="noopener" aria-label="Abrir la ruta al estudio en Google Maps">
+      <iframe title="Mapa: ${CP.esc(st.address || st.city)}" src="https://www.google.com/maps?q=${mapsQ}&z=16&output=embed" loading="lazy" referrerpolicy="no-referrer-when-downgrade" tabindex="-1"></iframe>
+    </a>
+    <div class="map-bar"><span class="label">[ ${CP.esc(st.address || st.city)} ]</span><a class="btn" href="${mapsDir}" target="_blank" rel="noopener">Cómo llegar</a></div>`;
   CP.$('#contact').innerHTML = `
-    <div><span class="label muted">Dirección</span><p class="v">${CP.esc(st.address || st.city)}</p><a class="link mono" href="https://www.google.com/maps/search/?api=1&query=${mapsQ}" target="_blank" rel="noopener">Abrir en Google Maps</a></div>
+    <div><span class="label muted">Dirección</span><p class="v">${CP.esc(st.address || st.city)}</p><a class="link mono" href="${mapsDir}" target="_blank" rel="noopener">Cómo llegar</a></div>
     <div><span class="label muted">Horario</span><p class="v">${CP.esc(st.hours_text)}</p><a class="link mono" href="reservar.html">Ver huecos libres</a></div>
     <div><span class="label muted">Escríbenos</span>
       ${st.instagram ? `<p class="v"><a href="https://instagram.com/${CP.esc(st.instagram)}" target="_blank" rel="noopener">@${CP.esc(st.instagram)}</a></p>` : ''}
       ${st.phone ? `<p class="mono" style="margin:0">Tel. <a href="tel:${CP.esc(st.phone.replace(/\s/g, ''))}">${CP.esc(st.phone)}</a></p>` : ''}
-      ${wa ? `<p class="mono" style="margin:0"><a href="https://wa.me/${wa}" target="_blank" rel="noopener">WhatsApp</a></p>` : ''}
+      ${wa ? `<p class="mono" style="margin:0"><a href="https://wa.me/${wa}" target="_blank" rel="noopener">Escribir por WhatsApp</a></p>` : ''}
       ${st.email ? `<p class="mono" style="margin:0">${CP.esc(st.email)}</p>` : ''}
     </div>`;
 });

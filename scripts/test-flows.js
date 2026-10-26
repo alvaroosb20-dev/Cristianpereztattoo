@@ -7,7 +7,7 @@ const assert = require('assert');
 Object.assign(process.env, {
   SUPABASE_URL: 'https://db.test', SUPABASE_SERVICE_ROLE_KEY: 'service', STRIPE_SECRET_KEY: 'sk_test_x',
   RESEND_API_KEY: 're_x', EMAIL_FROM: 'Estudio <r@test.com>', OWNER_EMAIL: 'owner@test.com',
-  ADMIN_PASSWORD: 'secreto-largo', ADMIN_SESSION_SECRET: 'x'.repeat(40), SITE_URL: 'https://web.test',
+  ADMIN_PASSWORD: 'secreto-largo', CALLMEBOT_APIKEY: 'k123', ADMIN_SESSION_SECRET: 'x'.repeat(40), SITE_URL: 'https://web.test',
 });
 
 // ---------- Postgres vía psql ----------
@@ -78,6 +78,7 @@ function postgrest(method, path, body) {
 // ---------- Mocks de red ----------
 const stripe = { sessions: {}, refunds: [], n: 0 };
 const emails = [];
+const whatsapps = [];
 const storage = {};
 const parseForm = (s) => Object.fromEntries(new URLSearchParams(s));
 global.fetch = async (url, opts = {}) => {
@@ -105,6 +106,7 @@ global.fetch = async (url, opts = {}) => {
     return json(200, { id, type: 'checkout.session.' + type, data: { object: stripe.sessions[sid] } });
   }
   if (url.startsWith('https://api.stripe.com/v1/refunds')) { stripe.refunds.push(parseForm(opts.body)); return json(200, { id: 're_1' }); }
+  if (url.startsWith('https://api.callmebot.com/')) { whatsapps.push(new URL(url)); return json(200, {}); }
   if (url.startsWith('https://api.resend.com/emails')) { emails.push(JSON.parse(opts.body)); return json(200, { id: 'e' }); }
   throw new Error('Unexpected fetch ' + url);
 };
@@ -179,8 +181,17 @@ const ok = (name) => { passed++; console.log('  ✓', name); };
   assert.equal(emails.length, 2); assert.ok(emails.find((e) => e.to[0] === 'owner@test.com' && e.html.includes('Ver diseño adjunto')));
   ok('Tras pagar: estado pendiente de aprobación, sin precio para el cliente, correos al cliente y al estudio (con enlace al diseño)');
 
+  assert.equal(whatsapps.length, 1);
+  assert.equal(whatsapps[0].searchParams.get('phone'), '34646623706');
+  assert.ok(whatsapps[0].searchParams.get('text').includes(r1.data.ref) && whatsapps[0].searchParams.get('text').includes('Laura Gómez'));
+  ok('Aviso de la reserva por WhatsApp al +34 646 62 37 06 con los datos del cliente');
+
+  const gift = site.data.products.find((p) => p.slug === 'tarjeta-regalo');
+  assert.deepEqual(gift.variants[0].options.map((o) => o.price_cents), [10000, 15000, 20000, 25000, 37000]);
+  ok('Tarjetas regalo: 100, 150, 200, 250 € y sesión de brazo 370 €');
+
   const wh = await call('stripe-webhook.js', { method: 'POST', body: { id: `evt_completed__${sid1}` } });
-  assert.equal(wh.status, 200); assert.equal(emails.length, 2);
+  assert.equal(wh.status, 200); assert.equal(emails.length, 2); assert.equal(whatsapps.length, 1);
   ok('Webhook repetido es idempotente (no duplica correos)');
 
   // Reserva sin pagar caducada libera la hora

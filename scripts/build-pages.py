@@ -43,16 +43,16 @@ def page(fname, page_key, title, desc, main, scripts, extra_head=""):
     open(os.path.join(ROOT, fname), "w", encoding="utf-8").write(html)
 
 LDJSON = """<script type="application/ld+json">
-{"@context":"https://schema.org","@type":"TattooParlor","name":"Cristhian Pérez Tattoo","image":"media/tattoo-estatua.webp","address":{"@type":"PostalAddress","addressLocality":"Tenerife","addressRegion":"Islas Canarias","addressCountry":"ES"},"sameAs":["https://instagram.com/cristianperez.tat"]}
+{"@context":"https://schema.org","@type":"TattooParlor","name":"Cristhian Pérez Tattoo","image":"media/tattoo-estatua.webp","telephone":"+34 646 62 37 06","address":{"@type":"PostalAddress","streetAddress":"C. Álvaro Martín Díaz, 18","postalCode":"38320","addressLocality":"San Cristóbal de La Laguna","addressRegion":"Santa Cruz de Tenerife","addressCountry":"ES"},"sameAs":["https://instagram.com/cristianperez.tat"]}
 </script>
 """
 
 page("index.html", "home", "Cristhian Pérez Tattoo",
-  "Estudio de tatuaje de Cristhian Pérez en Tenerife. Realismo black & grey, fine line y diseño propio. Reserva tu cita online con señal y compra en la tienda oficial.",
+  "Estudio de tatuaje de Cristhian Pérez en La Laguna, Tenerife. Realismo black & grey, fine line y diseño propio. Reserva tu cita online con señal y compra en la tienda oficial.",
   """<section class="hero">
   <div class="wrap hero-grid">
     <div class="hero-copy">
-      <div class="hero-kicker label" data-bind="city">Tenerife · Islas Canarias</div>
+      <div class="hero-kicker label" data-bind="city">La Laguna, Tenerife</div>
       <h1 class="display hero-title"><span class="line"><span>Cristhian</span></span><span class="line"><span>Pérez</span></span><span class="line"><span>Tattoo</span></span></h1>
       <p class="hero-sub" data-bind="tagline">Realismo, fine line y piezas con alma editorial. Tenerife.</p>
       <div class="hero-ctas">
@@ -145,6 +145,7 @@ page("index.html", "home", "Cristhian Pérez Tattoo",
   <div class="wrap">
     <div class="section-head"><div><span class="label gold">Contacto</span><h2 class="display h2">Ven al estudio</h2></div></div>
     <div class="contact-grid" id="contact"></div>
+    <div class="map" id="map"></div>
   </div>
 </section>""", ["home.js"], LDJSON)
 

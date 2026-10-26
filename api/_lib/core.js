@@ -13,6 +13,8 @@ const env = {
   ADMIN_PASSWORD: process.env.ADMIN_PASSWORD || '',
   ADMIN_SESSION_SECRET: process.env.ADMIN_SESSION_SECRET || '',
   SITE_URL: (process.env.SITE_URL || '').replace(/\/$/, ''),
+  OWNER_WHATSAPP: (process.env.OWNER_WHATSAPP || '34646623706').replace(/\D/g, ''),
+  CALLMEBOT_APIKEY: process.env.CALLMEBOT_APIKEY || '',
 };
 
 const hasDb = () => Boolean(env.SUPABASE_URL && env.SUPABASE_SERVICE_ROLE_KEY);
@@ -179,6 +181,18 @@ async function sendEmail({ to, subject, html, replyTo }) {
   } catch (e) { console.error('[email]', e); return false; }
 }
 
+// ---------- WhatsApp al estudio (CallMeBot, gratuito) ----------
+// Requiere activarlo una vez desde el móvil del estudio (ver README) y poner CALLMEBOT_APIKEY en Vercel.
+async function sendWhatsApp(text) {
+  if (!env.CALLMEBOT_APIKEY || !env.OWNER_WHATSAPP) { console.warn('[whatsapp] no configurado, se omite'); return false; }
+  try {
+    const url = `https://api.callmebot.com/whatsapp.php?phone=${env.OWNER_WHATSAPP}&text=${encodeURIComponent(text)}&apikey=${encodeURIComponent(env.CALLMEBOT_APIKEY)}`;
+    const r = await fetch(url);
+    if (!r.ok) console.error('[whatsapp]', r.status, await r.text());
+    return r.ok;
+  } catch (e) { console.error('[whatsapp]', e); return false; }
+}
+
 // ---------- Validación ----------
 const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const str = (v, max = 500) => (typeof v === 'string' ? v.trim().slice(0, max) : '');
@@ -213,6 +227,6 @@ const euros = (cents) => (cents / 100).toLocaleString('es-ES', { style: 'currenc
 
 module.exports = {
   env, hasDb, hasStripe, hasEmail, send, ok, fail, readJson, origin, wrap, HttpError,
-  db, storageUpload, storageDelete, storageSignedUrl, publicUrl, stripe, sendEmail,
+  db, storageUpload, storageDelete, storageSignedUrl, publicUrl, stripe, sendEmail, sendWhatsApp,
   esc, str, isEmail, isUuid, makeRef, decodeImage, euros, crypto,
 };

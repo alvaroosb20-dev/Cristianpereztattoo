@@ -106,10 +106,29 @@ async function sendBookingEmails(b) {
      <p style="font-size:13px;color:#6f6f6c;line-height:1.6">Este correo sirve como justificante del pago de la señal (${core.euros(b.deposit_cents)}). Stripe te enviará además su propio recibo.${s.deposit_deducted ? ' La señal se descuenta del precio final del tatuaje.' : ''}</p>`, studio);
   await core.sendEmail({ to: b.email, subject: `Reserva ${b.ref} · señal recibida`, html: clientHtml, replyTo: core.env.OWNER_EMAIL || studio.email || undefined });
 
+  const designUrl = b.design_path ? await core.storageSignedUrl('designs', b.design_path, 60 * 60 * 24 * 7) : null;
+  const site = core.env.SITE_URL || '';
+
+  // Aviso inmediato por WhatsApp al número del estudio
+  await core.sendWhatsApp([
+    `🗓️ NUEVA RESERVA ${b.ref}`,
+    `${when} (${Math.round((b.end_min - b.start_min) / 6) / 10} h)`,
+    ``,
+    `👤 ${b.name}`,
+    `📞 ${b.phone}`,
+    `✉️ ${b.email}`,
+    ``,
+    `Estilo: ${b.style}`,
+    `Zona: ${b.body_zone} · ${b.size_label}`,
+    `Idea: ${b.description}`,
+    ``,
+    `Señal pagada: ${core.euros(b.deposit_cents)}`,
+    designUrl ? `Diseño: ${designUrl}` : 'Sin diseño adjunto',
+    site ? `Aprobar: ${site}/admin` : '',
+  ].filter((l, i, a) => l !== '' || a[i - 1] !== '').join('\n'));
+
   const owner = core.env.OWNER_EMAIL || studio.email;
   if (owner) {
-    const designUrl = b.design_path ? await core.storageSignedUrl('designs', b.design_path, 60 * 60 * 24 * 7) : null;
-    const site = core.env.SITE_URL || '';
     const ownerHtml = emailShell(`Nueva reserva · ${core.esc(b.name)}`,
       `${ownerTable}<table style="width:100%;border-collapse:collapse;margin-top:10px">
         ${row('Cliente', core.esc(b.name))}${row('Email', core.esc(b.email))}${row('Teléfono', core.esc(b.phone))}

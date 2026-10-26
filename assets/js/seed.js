@@ -8,13 +8,13 @@
       name: 'Cristhian Pérez Tattoo',
       artist: 'Cristhian Pérez',
       tagline: 'Realismo, fine line y piezas con alma editorial. Tenerife.',
-      address: '',
-      city: 'Tenerife, Islas Canarias',
-      phone: '',
-      whatsapp: '',
+      address: 'C. Álvaro Martín Díaz, 18, 38320 La Laguna, Santa Cruz de Tenerife',
+      city: 'La Laguna, Tenerife',
+      phone: '+34 646 62 37 06',
+      whatsapp: '34646623706',
       email: '',
       instagram: 'cristianperez.tat',
-      maps_query: 'Tenerife, Islas Canarias',
+      maps_query: 'C. Álvaro Martín Díaz, 18, 38320 La Laguna, Santa Cruz de Tenerife',
       hours_text: 'Martes a sábado · Solo con cita previa',
     },
     about:
@@ -128,10 +128,10 @@
       images: ['img/products/print.svg'],
       description: 'Lámina A3 del boceto original de la estatua con espiral áurea. Papel algodón de 300 g, edición numerada.',
       variants: [{ name: 'Formato', options: [{ label: 'A3' }, { label: 'A4', price_cents: 2800 }] }] },
-    { id: 'demo-8', slug: 'tarjeta-regalo', name: 'Tarjeta regalo', category: 'regalo', price_cents: 5000, stock: 999, featured: false, active: true, sort: 8,
+    { id: 'demo-8', slug: 'tarjeta-regalo', name: 'Tarjeta regalo', category: 'regalo', price_cents: 10000, stock: 999, featured: false, active: true, sort: 8,
       images: ['img/products/tarjeta-regalo.svg'],
-      description: 'Regala un tatuaje. Válida para sesiones en el estudio durante 12 meses.',
-      variants: [{ name: 'Importe', options: [{ label: '50 €', price_cents: 5000 }, { label: '100 €', price_cents: 10000 }, { label: '150 €', price_cents: 15000 }] }] },
+      description: 'Regala un tatuaje. Elige el importe (100 €, 150 €, 200 € o 250 €) o una sesión de brazo completa por 370 €. Válida para sesiones en el estudio durante 12 meses.',
+      variants: [{ name: 'Importe', options: [{ label: '100 €', price_cents: 10000 }, { label: '150 €', price_cents: 15000 }, { label: '200 €', price_cents: 20000 }, { label: '250 €', price_cents: 25000 }, { label: 'Sesión de brazo · 370 €', price_cents: 37000 }] }] },
   ];
 
   const CATEGORIES = [

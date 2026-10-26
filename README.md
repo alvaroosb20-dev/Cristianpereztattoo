@@ -50,6 +50,13 @@ Crea un repositorio (por ejemplo `cristhian-perez-tattoo`) y sube **todo el cont
 2. **API Keys** → crea una y cópiala.
 > Sin Resend la web funciona igual, pero no se envían correos.
 
+### 4b. Aviso de reservas por WhatsApp (+34 646 62 37 06)
+Cada vez que alguien paga la señal, el estudio recibe un WhatsApp con la fecha, los datos del cliente, la idea y el enlace al diseño. Se hace con **CallMeBot** (gratis). Se activa una sola vez desde el móvil del +34 646 62 37 06:
+1. Entra en [callmebot.com → WhatsApp API](https://www.callmebot.com/blog/free-api-whatsapp-messages/) y guarda en la agenda el número de CallMeBot que aparece ahí.
+2. Envíale por WhatsApp el mensaje: `I allow callmebot to send me messages`
+3. Te responde con tu **apikey**. Ponla en Vercel como `CALLMEBOT_APIKEY`.
+> Además del WhatsApp, la reserva llega también por correo a `OWNER_EMAIL` y aparece en el panel.
+
 ### 5. Vercel
 1. [vercel.com](https://vercel.com) → **Add New → Project** → importa el repositorio. Framework: **Other**. Sin comando de build.
 2. **Settings → Environment Variables**: añade las de `.env.example` con tus valores:
@@ -66,6 +73,8 @@ Crea un repositorio (por ejemplo `cristhian-perez-tattoo`) y sube **todo el cont
 | `ADMIN_PASSWORD` | contraseña del panel |
 | `ADMIN_SESSION_SECRET` | texto aleatorio de 32+ caracteres |
 | `SITE_URL` | `https://tudominio.com` |
+| `OWNER_WHATSAPP` | `34646623706` (número que recibe las reservas) |
+| `CALLMEBOT_APIKEY` | clave de CallMeBot (paso 4b) |
 
 3. **Redeploy**. Entra en `https://tudominio.com/admin` con la contraseña.
 

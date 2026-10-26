@@ -204,8 +204,14 @@ select * from (values
   ('print-proporcion-aurea', 'Print Proporción Áurea', 'prints', 4000, 15, false, 7, array['img/products/print.svg'],
    'Lámina A3 del boceto original de la estatua con espiral áurea. Papel algodón de 300 g, edición numerada.',
    '[{"name":"Formato","options":[{"label":"A3"},{"label":"A4","price_cents":2800}]}]'::jsonb),
-  ('tarjeta-regalo', 'Tarjeta regalo', 'regalo', 5000, 999, false, 8, array['img/products/tarjeta-regalo.svg'],
-   'Regala un tatuaje. Válida para sesiones en el estudio durante 12 meses.',
-   '[{"name":"Importe","options":[{"label":"50 €","price_cents":5000},{"label":"100 €","price_cents":10000},{"label":"150 €","price_cents":15000}]}]'::jsonb)
+  ('tarjeta-regalo', 'Tarjeta regalo', 'regalo', 10000, 999, false, 8, array['img/products/tarjeta-regalo.svg'],
+   'Regala un tatuaje. Elige el importe (100 €, 150 €, 200 € o 250 €) o una sesión de brazo completa por 370 €. Válida para sesiones en el estudio durante 12 meses.',
+   '[{"name":"Importe","options":[{"label":"100 €","price_cents":10000},{"label":"150 €","price_cents":15000},{"label":"200 €","price_cents":20000},{"label":"250 €","price_cents":25000},{"label":"Sesión de brazo · 370 €","price_cents":37000}]}]'::jsonb)
 ) v(slug, name, category, price_cents, stock, featured, sort, images, description, variants)
 where not exists (select 1 from public.products);
+
+-- Tarjeta regalo: importes 100/150/200/250 € y sesión de brazo 370 € (también si ya existía)
+update public.products set price_cents = 10000,
+  description = 'Regala un tatuaje. Elige el importe (100 €, 150 €, 200 € o 250 €) o una sesión de brazo completa por 370 €. Válida para sesiones en el estudio durante 12 meses.',
+  variants = '[{"name":"Importe","options":[{"label":"100 €","price_cents":10000},{"label":"150 €","price_cents":15000},{"label":"200 €","price_cents":20000},{"label":"250 €","price_cents":25000},{"label":"Sesión de brazo · 370 €","price_cents":37000}]}]'::jsonb
+where slug = 'tarjeta-regalo';
