@@ -227,35 +227,94 @@
     box.querySelector('.lightbox-close').focus();
   };
 
-  // Vídeo del portafolio: se reproduce solo (en silencio, como exigen los navegadores) y en bucle.
-  // El botón del altavoz activa la música; solo suena uno a la vez.
+  // ---------- Vídeos: reproducción automática + música ----------
+  // Todos los vídeos arrancan solos (en silencio, es lo que permiten los navegadores) y se pausan fuera de pantalla.
+  // Con el primer toque en cualquier parte de la web se activa la música: suena el vídeo que más se ve
+  // y va cambiando al hacer scroll. El botón flotante «Sonido» la apaga o enciende.
   CP.videoCard = (item) => `
     <div class="tile video-card" data-video>
       <video src="${CP.asset(item.src)}" poster="${CP.asset(item.poster)}" autoplay muted loop playsinline preload="metadata" aria-label="${CP.esc(item.title || 'Vídeo del estudio')}"></video>
-      <button class="chip-btn vc-sound" type="button" aria-label="Activar música" aria-pressed="false">${CP.icon.mute}</button>
     </div>`;
-  CP.wireVideoCards = (root) => {
-    const cards = CP.$$('[data-video]', root);
-    const io = 'IntersectionObserver' in window ? new IntersectionObserver((entries) => {
-      entries.forEach((en) => { const v = en.target; if (en.isIntersecting) v.play().catch(() => {}); else v.pause(); });
-    }, { threshold: 0.25 }) : null;
-    cards.forEach((card) => {
-      const v = card.querySelector('video');
-      const snd = card.querySelector('.vc-sound');
-      v.muted = true;
-      if (io) io.observe(v); else v.play().catch(() => {});
-      const setSound = (on) => {
-        if (on) CP.$$('[data-video]').forEach((o) => { if (o !== card) { const ov = o.querySelector('video'); ov.muted = true; const b = o.querySelector('.vc-sound'); b.innerHTML = CP.icon.mute; b.setAttribute('aria-pressed', 'false'); b.setAttribute('aria-label', 'Activar música'); } });
-        v.muted = !on;
-        if (on) v.play().catch(() => {});
-        snd.innerHTML = on ? CP.icon.sound : CP.icon.mute;
-        snd.setAttribute('aria-pressed', String(on));
-        snd.setAttribute('aria-label', on ? 'Quitar música' : 'Activar música');
-      };
-      snd.addEventListener('click', (e) => { e.stopPropagation(); setSound(v.muted); });
-      v.addEventListener('click', () => setSound(v.muted));
-    });
-  };
+  CP.sound = (() => {
+    const KEY = 'cp_sound_on';
+    let want = CP.store.get(KEY, true);
+    let unlocked = false, pinned = null, btn = null, io = null;
+    const ratios = new Map();
+    const videos = () => CP.$$('[data-video] video');
+    function pick() {
+      if (pinned && document.contains(pinned) && (ratios.get(pinned) || 0) > 0.2) return pinned;
+      let best = null, max = 0;
+      ratios.forEach((r, v) => { if (r > max && document.contains(v)) { max = r; best = v; } });
+      return max >= 0.45 ? best : null;
+    }
+    function render() {
+      if (!btn) return;
+      btn.setAttribute('aria-pressed', String(want && unlocked));
+      btn.innerHTML = `${want ? CP.icon.sound : CP.icon.mute}<span>${!want ? 'Sonido off' : unlocked ? 'Sonido on' : 'Toca para oír'}</span>`;
+    }
+    function apply() {
+      const active = unlocked && want ? pick() : null;
+      videos().forEach((v) => {
+        const shouldMute = v !== active;
+        if (v.muted !== shouldMute) v.muted = shouldMute;
+      });
+      if (active) {
+        active.volume = 1;
+        if (active.paused) active.play().catch(() => { active.muted = true; active.play().catch(() => {}); });
+      }
+      render();
+    }
+    function unlock() {
+      if (unlocked) return;
+      unlocked = true;
+      // "Bendecir" todos los vídeos dentro del gesto para que Safari permita el sonido después
+      videos().forEach((v) => { if ((ratios.get(v) || 0) > 0) { v.muted = false; v.play().catch(() => {}); } });
+      apply();
+    }
+    ['pointerdown', 'touchend', 'keydown'].forEach((ev) => document.addEventListener(ev, unlock, { capture: true, passive: true }));
+    function ensureButton() {
+      if (btn) return;
+      btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'sound-toggle';
+      btn.setAttribute('aria-label', 'Activar o quitar la música de los vídeos');
+      btn.addEventListener('click', () => {
+        if (!unlocked) { unlock(); want = true; } else want = !want;
+        pinned = null;
+        CP.store.set(KEY, want);
+        apply();
+      });
+      document.body.appendChild(btn);
+      render();
+    }
+    function register(root) {
+      if (!io) {
+        io = 'IntersectionObserver' in window ? new IntersectionObserver((entries) => {
+          entries.forEach((e) => {
+            ratios.set(e.target, e.isIntersecting ? e.intersectionRatio : 0);
+            if (e.isIntersecting) e.target.play().catch(() => {}); else e.target.pause();
+          });
+          apply();
+        }, { threshold: [0, 0.25, 0.45, 0.6, 0.8, 1] }) : null;
+      }
+      CP.$$('[data-video] video', root).forEach((v) => {
+        if (v.dataset.wired) return;
+        v.dataset.wired = '1';
+        v.muted = true; v.loop = true; v.playsInline = true;
+        if (io) io.observe(v); else v.play().catch(() => {});
+        v.closest('[data-video]').addEventListener('click', () => {
+          unlock();
+          if (!v.muted && want) { want = false; pinned = null; }
+          else { want = true; pinned = v; }
+          CP.store.set(KEY, want);
+          apply();
+        });
+      });
+      if (CP.$$('[data-video] video').length) ensureButton();
+    }
+    return { register, apply };
+  })();
+  CP.wireVideoCards = (root) => CP.sound.register(root || document);
 
   CP.productCard = (p) => {
     const { min, from } = CP.minPrice(p);
@@ -274,6 +333,7 @@
       if (f) f.outerHTML = footer(site);
       wireMenu();
       CP.cart.render();
+      CP.wireVideoCards(document);
       try { fn(site); } catch (e) { console.error(e); }
     });
   };

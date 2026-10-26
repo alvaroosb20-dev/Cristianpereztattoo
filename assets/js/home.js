@@ -13,15 +13,16 @@ CP.ready((site) => {
   CP.$('#styles-list').innerHTML = (s.styles || []).map((name) => `<li><a class="name" href="portafolio.html?estilo=${encodeURIComponent(name)}">${CP.esc(name)}</a><a class="label muted" href="reservar.html?estilo=${encodeURIComponent(name)}">Reservar →</a></li>`).join('');
 
   // Portafolio: hasta 4 piezas (vídeos primero)
-  const items = (site.portfolio || []).slice().sort((a, b) => (a.kind === 'video' ? -1 : 1) - (b.kind === 'video' ? -1 : 1) || a.sort - b.sort).slice(0, 4);
+  // Sin repetir los clips que ya salen en la portada y en «El artista»
+  const used = CP.$$('[data-video] video').map((v) => v.getAttribute('src'));
+  const items = (site.portfolio || []).slice().sort((a, b) => (a.kind === 'video' ? -1 : 1) - (b.kind === 'video' ? -1 : 1) || a.sort - b.sort)
+    .filter((it) => !used.includes(CP.asset(it.src))).slice(0, 4);
+  CP.$('#reel').style.setProperty('--n', Math.max(1, items.length));
   CP.$('#reel').innerHTML = items.map((it, i) => it.kind === 'video' ? CP.videoCard(it) :
     `<button class="tile" type="button" data-photo="${i}"><img src="${CP.asset(it.src)}" alt="${CP.esc(it.title)}" loading="lazy"><div class="tile-cap"><span class="label gold">${CP.esc(it.style)}</span><span class="t">${CP.esc(it.title)}</span></div></button>`).join('');
   CP.wireVideoCards(CP.$('#reel'));
   CP.$$('#reel [data-photo]').forEach((b) => b.addEventListener('click', () => CP.lightbox(items[Number(b.dataset.photo)])));
 
-  const vid = (site.portfolio || []).find((p) => p.kind === 'video');
-  const soundBtn = CP.$('#hero-sound');
-  if (vid) soundBtn.addEventListener('click', () => CP.lightbox(vid)); else soundBtn.hidden = true;
 
   const featured = (site.products || []).filter((p) => p.featured).slice(0, 4);
   CP.$('#featured').innerHTML = (featured.length ? featured : site.products.slice(0, 4)).map(CP.productCard).join('');

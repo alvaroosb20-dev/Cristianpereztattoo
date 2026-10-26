@@ -159,10 +159,11 @@
   ];
 
   const PORTFOLIO = [
-    { id: 'p1', kind: 'video', src: 'media/video-1.mp4', poster: 'media/video-1.jpg', title: 'Sesión en el estudio · fine line', style: 'Fine line', sort: 1, visible: true },
-    { id: 'p2', kind: 'video', src: 'media/video-2.mp4', poster: 'media/video-2.jpg', title: 'Del stencil a la pieza', style: 'Microrealismo', sort: 2, visible: true },
-    { id: 'p3', kind: 'photo', src: 'media/tattoo-estatua.webp', poster: '', title: 'Estatua clásica y proporción áurea', style: 'Realismo black & grey', sort: 3, visible: true },
-    { id: 'p4', kind: 'photo', src: 'media/tattoo-impossible.webp', poster: '', title: 'Impossible · espalda editorial', style: 'Lettering editorial', sort: 4, visible: true },
+    { id: 'c1', kind: 'video', src: 'media/clip-sesion.mp4', poster: 'media/clip-sesion.jpg', title: 'Sesión en el estudio', style: 'Blackwork', sort: 1, visible: true },
+    { id: 'c2', kind: 'video', src: 'media/clip-detalle.mp4', poster: 'media/clip-detalle.jpg', title: 'Línea a línea', style: 'Realismo black & grey', sort: 2, visible: true },
+    { id: 'c3', kind: 'video', src: 'media/clip-llegada.mp4', poster: 'media/clip-llegada.jpg', title: 'Un día con Cristhian', style: 'Backstage', sort: 3, visible: true },
+    { id: 'p1', kind: 'video', src: 'media/video-1.mp4', poster: 'media/video-1.jpg', title: 'Sesión en el estudio · fine line', style: 'Fine line', sort: 4, visible: true },
+    { id: 'p2', kind: 'video', src: 'media/video-2.mp4', poster: 'media/video-2.jpg', title: 'Del stencil a la pieza', style: 'Microrealismo', sort: 5, visible: true },
   ];
 
   const api = { DEFAULT_SETTINGS, PRODUCTS, CATEGORIES, PORTFOLIO };

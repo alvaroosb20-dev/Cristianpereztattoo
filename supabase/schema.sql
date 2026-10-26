@@ -176,10 +176,11 @@ on conflict (id) do update set public = true;
 -- ---------- Datos iniciales (solo si las tablas están vacías) ----------
 insert into public.portfolio (kind, src, poster, title, style, sort)
 select * from (values
-  ('video', 'media/video-1.mp4', 'media/video-1.jpg', 'Sesión en el estudio · fine line', 'Fine line', 1),
-  ('video', 'media/video-2.mp4', 'media/video-2.jpg', 'Del stencil a la pieza', 'Microrealismo', 2),
-  ('photo', 'media/tattoo-estatua.webp', '', 'Estatua clásica y proporción áurea', 'Realismo black & grey', 3),
-  ('photo', 'media/tattoo-impossible.webp', '', 'Impossible · espalda editorial', 'Lettering editorial', 4)
+  ('video', 'media/clip-sesion.mp4', 'media/clip-sesion.jpg', 'Sesión en el estudio', 'Blackwork', 1),
+  ('video', 'media/clip-detalle.mp4', 'media/clip-detalle.jpg', 'Línea a línea', 'Realismo black & grey', 2),
+  ('video', 'media/clip-llegada.mp4', 'media/clip-llegada.jpg', 'Un día con Cristhian', 'Backstage', 3),
+  ('video', 'media/video-1.mp4', 'media/video-1.jpg', 'Sesión en el estudio · fine line', 'Fine line', 4),
+  ('video', 'media/video-2.mp4', 'media/video-2.jpg', 'Del stencil a la pieza', 'Microrealismo', 5)
 ) v(kind, src, poster, title, style, sort)
 where not exists (select 1 from public.portfolio);
 
@@ -233,3 +234,15 @@ select * from (values
    'Regala una sesión de brazo completa con Cristhian. Válida durante 12 meses desde la compra.', '[]'::jsonb)
 ) v(slug, name, category, price_cents, stock, featured, sort, images, description, variants)
 where not exists (select 1 from public.products p where p.slug = v.slug);
+
+-- Portafolio solo con vídeos: quitar las fotos de ejemplo y añadir los clips nuevos (también si ya existía)
+delete from public.portfolio where src in ('media/tattoo-estatua.webp', 'media/tattoo-impossible.webp');
+insert into public.portfolio (kind, src, poster, title, style, sort)
+select * from (values
+  ('video', 'media/clip-sesion.mp4', 'media/clip-sesion.jpg', 'Sesión en el estudio', 'Blackwork', 1),
+  ('video', 'media/clip-detalle.mp4', 'media/clip-detalle.jpg', 'Línea a línea', 'Realismo black & grey', 2),
+  ('video', 'media/clip-llegada.mp4', 'media/clip-llegada.jpg', 'Un día con Cristhian', 'Backstage', 3)
+) v(kind, src, poster, title, style, sort)
+where not exists (select 1 from public.portfolio p where p.src = v.src);
+update public.portfolio set sort = 4 where src = 'media/video-1.mp4';
+update public.portfolio set sort = 5 where src = 'media/video-2.mp4';

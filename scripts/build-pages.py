@@ -16,7 +16,7 @@ def head(title, desc, extra=""):
 <meta property="og:type" content="website">
 <meta property="og:title" content="{title}">
 <meta property="og:description" content="{desc}">
-<meta property="og:image" content="media/tattoo-estatua.webp">
+<meta property="og:image" content="media/clip-sesion.jpg">
 <meta property="og:locale" content="es_ES">
 <!-- Google Search Console: pega aquí tu etiqueta de verificación -->
 <link rel="icon" href="img/favicon.svg" type="image/svg+xml">
@@ -43,7 +43,7 @@ def page(fname, page_key, title, desc, main, scripts, extra_head=""):
     open(os.path.join(ROOT, fname), "w", encoding="utf-8").write(html)
 
 LDJSON = """<script type="application/ld+json">
-{"@context":"https://schema.org","@type":"TattooParlor","name":"Cristhian Pérez Tattoo","image":"media/tattoo-estatua.webp","telephone":"+34 646 62 37 06","address":{"@type":"PostalAddress","streetAddress":"C. Álvaro Martín Díaz, 18","postalCode":"38320","addressLocality":"San Cristóbal de La Laguna","addressRegion":"Santa Cruz de Tenerife","addressCountry":"ES"},"sameAs":["https://instagram.com/cristianperez.tat"]}
+{"@context":"https://schema.org","@type":"TattooParlor","name":"Cristhian Pérez Tattoo","image":"media/clip-sesion.jpg","telephone":"+34 646 62 37 06","address":{"@type":"PostalAddress","streetAddress":"C. Álvaro Martín Díaz, 18","postalCode":"38320","addressLocality":"San Cristóbal de La Laguna","addressRegion":"Santa Cruz de Tenerife","addressCountry":"ES"},"sameAs":["https://instagram.com/cristianperez.tat"]}
 </script>
 """
 
@@ -60,18 +60,16 @@ page("index.html", "home", "Cristhian Pérez Tattoo",
         <a class="btn btn-ghost" href="tienda.html">Ver tienda</a>
       </div>
     </div>
-    <div class="hero-media">
-      <video src="media/hero-loop.mp4" poster="media/video-1.jpg" autoplay muted loop playsinline preload="auto" aria-label="Cristhian Pérez tatuando en el estudio"></video>
-      <button class="chip-btn sound-btn" type="button" id="hero-sound"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z"/></svg>Ver con música</button>
+    <div class="hero-media" data-video>
+      <video src="media/clip-sesion.mp4" poster="media/clip-sesion.jpg" autoplay muted loop playsinline preload="auto" aria-label="Cristhian Pérez tatuando en una sesión"></video>
     </div>
   </div>
 </section>
 
 <section class="section" id="artista">
   <div class="wrap split">
-    <figure class="artist-photo" style="margin:0">
-      <img src="media/video-2.jpg" alt="Cristhian Pérez trabajando en el estudio" loading="lazy">
-      <figcaption class="label mono">El artista</figcaption>
+    <figure class="artist-photo" style="margin:0" data-video>
+      <video src="media/clip-llegada.mp4" poster="media/clip-llegada.jpg" autoplay muted loop playsinline preload="metadata" aria-label="Cristhian Pérez en el estudio"></video>
     </figure>
     <div class="about-text">
       <span class="label gold">El artista</span>
@@ -154,7 +152,7 @@ page("portafolio.html", "portfolio", "Portafolio · Cristhian Pérez Tattoo",
   """<section class="page-head"><div class="wrap">
   <span class="label">Trabajos</span>
   <h1 class="display h1">Portafolio</h1>
-  <p class="lead muted" style="margin-top:1.2rem">Sesiones grabadas en el estudio y piezas terminadas. Los vídeos se reproducen solos: toca el altavoz para escuchar la música.</p>
+  <p class="lead muted" style="margin-top:1.2rem">Sesiones grabadas en el estudio. Los vídeos se reproducen solos y, con un toque en la pantalla, suenan con su música.</p>
 </div></section>
 <section class="wrap" style="padding-block:2rem 5rem">
   <div class="shop-bar"><div class="filters" id="pf-filters" role="group" aria-label="Filtrar por estilo"></div><span class="mono muted" id="pf-count"></span></div>
