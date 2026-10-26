@@ -117,33 +117,75 @@
 
   // ---------- Login ----------
   async function boot() {
-    try {
-      const r = await CP.api('admin/auth');
-      if (!r) throw Object.assign(new Error('sin api'), { status: 0 });
-      health = r; start();
-    } catch (e) {
-      if (!e.status || e.status === 404 || e.status === 405) { demo = true; return login('', true); }
-      login(e.status === 503 ? e.message : '');
-    }
+    let r = null;
+    try { r = await CP.api('admin/auth'); } catch (e) { r = null; }
+    if (!r || typeof r !== 'object') { demo = true; return login({ demoOnly: true }); }       // vista previa sin servidor
+    if (r.ok && !r.db) { demo = true; health = { demo: true, noDb: true }; return start(); }   // contraseña OK pero sin Supabase
+    if (r.ok) { health = r; return start(); }
+    if (r.reason === 'no_password') return setupScreen(r.setup);
+    login({});
   }
-  function login(msg, isDemo) {
-    app.innerHTML = `<div class="login"><form id="login-form">
-      ${isDemo ? '<div class="notice">Modo demostración: esta vista previa no tiene servidor, así que el panel guarda los cambios solo en este dispositivo. Entra con cualquier contraseña.</div>' : ''}
+
+  // Pantalla de configuración cuando aún faltan claves en Vercel
+  function setupScreen(st) {
+    const row = (ok, name, help) => `<li class="setup-row ${ok ? 'ok' : ''}"><span class="setup-dot" aria-hidden="true">${ok ? '✓' : ''}</span><div><strong>${name}</strong><span class="muted">${help}</span></div></li>`;
+    app.innerHTML = `<div class="login"><div class="setup">
+      <span class="brand" style="justify-self:start;text-align:left"><span class="brand-name">Cristhian Pérez</span><span class="brand-sub" style="padding-left:0">Panel del estudio</span></span>
+      <h1 class="display h3" style="margin:.4rem 0 0">Activa el panel</h1>
+      <p class="muted" style="margin:0">Falta poner en Vercel la contraseña del panel. Se hace una sola vez.</p>
+      <ol class="setup-steps">
+        <li>En Vercel, abre el proyecto → <strong>Settings → Environment Variables</strong>.</li>
+        <li>Añade <code>ADMIN_PASSWORD</code> con la contraseña que quieras.</li>
+        <li>Para guardar fotos y precios, añade también <code>SUPABASE_URL</code> y <code>SUPABASE_SERVICE_ROLE_KEY</code>.</li>
+        <li>Ve a <strong>Deployments</strong> → ⋯ en la última → <strong>Redeploy</strong>, y recarga esta página.</li>
+      </ol>
+      <ul class="setup-list">
+        ${row(st.password, 'Contraseña del panel', 'ADMIN_PASSWORD')}
+        ${row(st.db, 'Base de datos (Supabase)', 'Guarda fotos, precios, citas y pedidos')}
+        ${row(st.stripe, 'Pagos (Stripe)', 'Señal de 50 € y compras de la tienda')}
+        ${row(st.email, 'Correos (Resend)', 'Confirmaciones al cliente y avisos al estudio')}
+      </ul>
+      <button class="btn btn-ghost" type="button" id="try-demo">Mientras tanto, probar el panel en modo demostración</button>
+      <a class="link mono" href="../index.html">← Volver a la web</a>
+    </div></div>`;
+    $('#try-demo').addEventListener('click', () => { demo = true; health = { demo: true }; CP.session.set('cp_admin_demo_login', true); start(); });
+  }
+
+  function login(opts) {
+    opts = opts || {};
+    const msg = opts.msg || '';
+    app.innerHTML = `<div class="login"><form id="login-form" novalidate>
       <span class="brand" style="justify-self:start;text-align:left"><span class="brand-name">Cristhian Pérez</span><span class="brand-sub" style="padding-left:0">Panel del estudio</span></span>
       <h1 class="display h3" style="margin:.6rem 0 0">Entrar</h1>
+      ${opts.demoOnly ? '<div class="notice">Vista previa sin servidor: el panel funciona en modo demostración y guarda los cambios solo en este dispositivo. Entra con cualquier contraseña.</div>' : ''}
       ${msg ? `<div class="notice error">${esc(msg)}</div>` : ''}
-      <label class="field"><span class="label">Contraseña</span><input class="input" id="pw" type="password" autocomplete="current-password" required></label>
+      <label class="field"><span class="label">Contraseña</span>
+        <span class="pw-wrap"><input class="input" id="pw" type="password" autocomplete="current-password" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="go" required><button class="pw-eye" type="button" id="pw-eye" aria-label="Mostrar contraseña">Ver</button></span>
+      </label>
       <div id="login-err"></div>
       <button class="btn btn-gold" type="submit">Entrar</button>
+      <span class="mono muted" style="font-size:.72rem">La sesión se mantiene abierta 30 días en este dispositivo.</span>
       <a class="link mono" href="../index.html">← Volver a la web</a>
     </form></div>`;
+    $('#pw-eye').addEventListener('click', () => { const i = $('#pw'); const show = i.type === 'password'; i.type = show ? 'text' : 'password'; $('#pw-eye').textContent = show ? 'Ocultar' : 'Ver'; i.focus(); });
     $('#login-form').addEventListener('submit', async (e) => {
       e.preventDefault();
-      const b = e.submitter; b.classList.add('is-loading');
-      try { await api('admin/auth', { method: 'POST', body: { password: $('#pw').value } }); if (demo) { health = { demo: true }; start(); } else boot(); }
-      catch (err) { $('#login-err').innerHTML = `<div class="notice error">${esc(err.message)}</div>`; b.classList.remove('is-loading'); }
+      const b = $('#login-form button[type=submit]');
+      const pw = $('#pw').value;
+      if (!pw) { $('#login-err').innerHTML = '<div class="notice error">Escribe la contraseña.</div>'; return; }
+      b.classList.add('is-loading'); b.textContent = 'Entrando…';
+      try {
+        const r = await api('admin/auth', { method: 'POST', body: { password: pw } });
+        if (demo) { health = { demo: true }; return start(); }
+        if (r && r.ok && !r.db) { demo = true; health = { demo: true, noDb: true }; return start(); }
+        health = r || {}; start();
+      } catch (err) {
+        $('#login-err').innerHTML = `<div class="notice error">${esc(err.message)}</div>`;
+        b.classList.remove('is-loading'); b.textContent = 'Entrar';
+        $('#pw').select();
+      }
     });
-    $('#pw').focus();
+    setTimeout(() => $('#pw') && $('#pw').focus(), 50);
   }
 
   // ---------- Estructura ----------
@@ -156,7 +198,12 @@
   async function start() {
     settings = await api('admin/settings');
     app.innerHTML = `<div class="adm">
-      <aside class="adm-side">
+      <header class="adm-top">
+        <span class="brand-name">Panel</span>
+        <span class="label" id="top-title"></span>
+        <button class="btn btn-ghost" type="button" id="menu-toggle" aria-expanded="false" aria-controls="adm-side" style="min-height:40px;padding:0 1em">Menú</button>
+      </header>
+      <aside class="adm-side" id="adm-side">
         <a class="brand" href="../index.html" target="_blank" rel="noopener"><span class="brand-name">Cristhian Pérez</span><span class="brand-sub" style="padding-left:0">Panel</span></a>
         ${TABS.map(([k, t]) => `<button class="adm-tab" type="button" data-tab="${k}">${t}<span class="badge" data-badge="${k}" hidden></span></button>`).join('')}
         <div class="side-foot mono">
@@ -169,9 +216,11 @@
       </aside>
       <main class="adm-main" id="view"></main>
     </div>`;
-    $$('[data-tab]').forEach((b) => b.addEventListener('click', () => { tab = b.dataset.tab; history.replaceState(null, '', '#' + tab); show(); }));
+    $$('[data-tab]').forEach((b) => b.addEventListener('click', () => { tab = b.dataset.tab; history.replaceState(null, '', '#' + tab); app.classList.remove('menu-open'); show(); window.scrollTo(0, 0); }));
     renderWebState();
-    $('#logout').addEventListener('click', async () => { await api('admin/auth', { method: 'DELETE' }); login(); });
+    $('#logout').addEventListener('click', async () => { try { await api('admin/auth', { method: 'DELETE' }); } catch {} CP.session.del('cp_admin_demo_login'); demo = false; health = {}; boot(); });
+    // Menú en el móvil
+    $('#menu-toggle').addEventListener('click', () => { const open = !app.classList.contains('menu-open'); app.classList.toggle('menu-open', open); $('#menu-toggle').setAttribute('aria-expanded', String(open)); });
     show();
     refreshBadge();
   }
@@ -189,12 +238,14 @@
     b.textContent = on ? 'ON' : ''; b.hidden = !on;
   }
   function show() {
+    if (!TABS.some(([k]) => k === tab)) tab = 'citas';
     $$('[data-tab]').forEach((b) => b.setAttribute('aria-current', b.dataset.tab === tab));
+    const tt = $('#top-title'); if (tt) tt.textContent = (TABS.find(([k]) => k === tab) || [])[1] || '';
     const v = $('#view');
     v.innerHTML = '<p class="muted">Cargando…</p>';
 
     const views = { citas, preparando, calendario, horario, precios, productos, pedidos, portafolio, opiniones, estudio };
-    (views[tab] || citas)(v).then(() => { if (health.demo && tab !== 'preparando' && !v.querySelector('[data-demo-reset]')) v.insertAdjacentHTML('afterbegin', demoNotice()); }).catch((e) => { v.innerHTML = `<div class="notice error">${esc(e.message)}</div>`; if (e.status === 401) login('Tu sesión ha caducado.'); });
+    (views[tab] || citas)(v).then(() => { if (health.demo && tab !== 'preparando' && !v.querySelector('[data-demo-reset]')) v.insertAdjacentHTML('afterbegin', demoNotice()); }).catch((e) => { v.innerHTML = `<div class="notice error">${esc(e.message)}</div>`; if (e.status === 401) login({ msg: 'Tu sesión ha caducado. Vuelve a entrar.' }); });
   }
   async function saveSettings(patch, btn) {
     if (btn) btn.classList.add('is-loading');
@@ -260,6 +311,7 @@
     });
   }
   function demoNotice() {
+    if (health.noDb) return `<div class="notice error" style="margin-bottom:1.2rem"><strong>Falta conectar Supabase en Vercel.</strong> Puedes usar el panel, pero los cambios se guardan solo en este dispositivo y los visitantes no los verán. Añade <code>SUPABASE_URL</code> y <code>SUPABASE_SERVICE_ROLE_KEY</code> en Vercel y vuelve a publicar. <button class="link" type="button" data-demo-reset>Restablecer datos de ejemplo</button></div>`;
     return `<div class="notice" style="margin-bottom:1.2rem">Modo demostración: los cambios se guardan solo en este dispositivo y se ven en la vista previa. Cuando la web esté publicada con Supabase, se guardarán para todos. <button class="link" type="button" data-demo-reset>Restablecer datos de ejemplo</button></div>`;
   }
   document.addEventListener('click', (e) => { if (e.target.closest('[data-demo-reset]')) { Demo.reset(); location.reload(); } });

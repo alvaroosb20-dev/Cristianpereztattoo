@@ -2,12 +2,14 @@
 const { env, crypto, HttpError } = require('./core');
 
 const COOKIE = 'cp_admin';
-const TTL_SECONDS = 60 * 60 * 12;
+const TTL_SECONDS = 60 * 60 * 24 * 30; // 30 días
 
+// ADMIN_SESSION_SECRET es opcional: si no está, se deriva de la contraseña y la clave de Supabase
+// (cambiar la contraseña cierra todas las sesiones).
 function secret() {
-  if (!env.ADMIN_PASSWORD) throw new HttpError(503, 'Falta configurar ADMIN_PASSWORD en Vercel.');
-  if (!env.ADMIN_SESSION_SECRET || env.ADMIN_SESSION_SECRET.length < 24) throw new HttpError(503, 'Falta configurar ADMIN_SESSION_SECRET (mínimo 24 caracteres) en Vercel.');
-  return env.ADMIN_SESSION_SECRET;
+  if (!env.ADMIN_PASSWORD) throw new HttpError(503, 'El panel aún no tiene contraseña.');
+  if (env.ADMIN_SESSION_SECRET && env.ADMIN_SESSION_SECRET.length >= 16) return env.ADMIN_SESSION_SECRET;
+  return crypto.createHash('sha256').update(`cp-admin|${env.ADMIN_PASSWORD}|${env.SUPABASE_SERVICE_ROLE_KEY}|${env.STRIPE_SECRET_KEY}`).digest('hex');
 }
 
 const sign = (payload) => crypto.createHmac('sha256', secret()).update(payload).digest('base64url');
@@ -39,8 +41,8 @@ function readCookie(req, name) {
 }
 
 function checkPassword(given) {
-  const a = crypto.createHash('sha256').update(String(given || '')).digest();
-  const b = crypto.createHash('sha256').update(env.ADMIN_PASSWORD).digest();
+  const a = crypto.createHash('sha256').update(String(given || '').trim()).digest();
+  const b = crypto.createHash('sha256').update(env.ADMIN_PASSWORD.trim()).digest();
   return crypto.timingSafeEqual(a, b);
 }
 

@@ -73,7 +73,7 @@ Cada vez que alguien paga la señal, el estudio recibe un WhatsApp con la fecha,
 | `EMAIL_FROM` | `Cristhian Pérez Tattoo <reservas@tudominio.com>` |
 | `OWNER_EMAIL` | correo donde quiere recibir reservas y pedidos |
 | `ADMIN_PASSWORD` | contraseña del panel |
-| `ADMIN_SESSION_SECRET` | texto aleatorio de 32+ caracteres |
+| `ADMIN_SESSION_SECRET` | opcional: texto aleatorio largo (si no lo pones, se genera solo) |
 | `SITE_URL` | `https://tudominio.com` |
 | `OWNER_WHATSAPP` | `34646623706` (número que recibe las reservas) |
 | `CALLMEBOT_APIKEY` | clave de CallMeBot (paso 4b) |
