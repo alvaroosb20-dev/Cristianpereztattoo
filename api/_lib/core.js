@@ -62,6 +62,10 @@ class HttpError extends Error {
 }
 
 // ---------- Supabase (PostgREST + Storage) ----------
+async function fetchSafe(url, opts) {
+  try { return await fetch(url, opts); }
+  catch (e) { const err = new HttpError(502, 'No se puede conectar con la base de datos: revisa SUPABASE_URL en Vercel.'); err.cause = e; throw err; }
+}
 // Acepta la clave secreta nueva (sb_secret_…, solo va en «apikey») y la service_role antigua (JWT, también como Bearer).
 function sbAuth() {
   const k = env.SUPABASE_SERVICE_ROLE_KEY;
@@ -69,7 +73,7 @@ function sbAuth() {
 }
 async function db(path, { method = 'GET', body, prefer, headers } = {}) {
   if (!hasDb()) throw new HttpError(503, 'La base de datos no está configurada.');
-  const r = await fetch(`${env.SUPABASE_URL}/rest/v1/${path}`, {
+  const r = await fetchSafe(`${env.SUPABASE_URL}/rest/v1/${path}`, {
     method,
     headers: {
       ...sbAuth(),
@@ -84,7 +88,11 @@ async function db(path, { method = 'GET', body, prefer, headers } = {}) {
   try { data = text ? JSON.parse(text) : null; } catch { data = text; }
   if (!r.ok) {
     const err = new Error(`Supabase ${r.status}: ${text}`);
-    err.status = r.status; err.code = data && data.code; err.details = data;
+    err.code = data && data.code; err.details = data; err.supabaseStatus = r.status;
+    // Nunca devolver 401 al navegador por un fallo de Supabase (se confundiría con la sesión del panel)
+    err.status = 502;
+    if (r.status === 401 || r.status === 403) err.publicMessage = 'La base de datos rechazó la conexión: revisa SUPABASE_SERVICE_ROLE_KEY en Vercel.';
+    else if (r.status === 404 && /relation|schema/i.test(text)) err.publicMessage = 'Faltan las tablas en Supabase: ejecuta supabase/schema.sql.';
     throw err;
   }
   return data;

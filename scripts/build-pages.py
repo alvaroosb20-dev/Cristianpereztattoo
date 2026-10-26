@@ -1,5 +1,6 @@
 # Genera las páginas HTML con la misma cabecera <head>. Ejecutar: python3 scripts/build-pages.py
-import os, json
+import os, json, time
+ASSET_V = time.strftime('%Y%m%d%H%M')
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 FONTS = "https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&display=swap"
 
@@ -23,12 +24,12 @@ def head(title, desc, extra=""):
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="{FONTS}">
-<link rel="stylesheet" href="assets/css/styles.css">
+<link rel="stylesheet" href="assets/css/styles.css?v={ASSET_V}">
 {extra}</head>
 """
 
 def page(fname, page_key, title, desc, main, scripts, extra_head=""):
-    js = "\n".join(f'<script src="assets/js/{s}" defer></script>' for s in ["config.js", "seed.js", "availability.js", "common.js"] + scripts)
+    js = "\n".join(f'<script src="assets/js/{s}?v={ASSET_V}" defer></script>' for s in ["config.js", "seed.js", "availability.js", "common.js"] + scripts)
     html = head(title, desc, extra_head) + f"""<body data-page="{page_key}">
 <a class="label" href="#main" style="position:absolute;left:-9999px">Saltar al contenido</a>
 <div id="site-header"></div>

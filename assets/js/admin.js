@@ -37,12 +37,13 @@
         ],
       };
     }
-    let db = CP.store.get(KEY, null) || initial();
+    let db = null;
     const save = () => { try { localStorage.setItem(KEY, JSON.stringify(db)); } catch (e) { throw Object.assign(new Error('No queda espacio en este dispositivo para más fotos de demostración. Usa fotos más pequeñas o borra alguna.'), { status: 413 }); } };
-    save();
+    const ensure = () => { if (!db) { db = CP.store.get(KEY, null) || initial(); try { save(); } catch {} } };
     const err = (status, message) => Promise.reject(Object.assign(new Error(message), { status }));
     const TABLE = { products: 'products', portfolio: 'portfolio', reviews: 'reviews', blocked: 'blocked', orders: 'orders' };
     function handle(path, opts) {
+      ensure();
       const u = new URL(path, 'http://x/');
       const route = u.pathname.slice(1);
       const q = u.searchParams;
@@ -111,7 +112,7 @@
         return err(404, 'Ruta no disponible en demostración');
       } catch (e) { return Promise.reject(e); }
     }
-    function reset() { db = initial(); save(); }
+    function reset() { db = initial(); try { save(); } catch {} }
     return { handle, reset };
   })();
 
@@ -148,7 +149,7 @@
       <button class="btn btn-ghost" type="button" id="try-demo">Mientras tanto, probar el panel en modo demostración</button>
       <a class="link mono" href="../index.html">← Volver a la web</a>
     </div></div>`;
-    $('#try-demo').addEventListener('click', () => { demo = true; health = { demo: true }; CP.session.set('cp_admin_demo_login', true); start(); });
+    $('#try-demo').addEventListener('click', () => { demo = true; health = { demo: true }; CP.session.set('cp_admin_demo_login', true); start().catch(fatal); });
   }
 
   function login(opts) {
@@ -176,9 +177,9 @@
       b.classList.add('is-loading'); b.textContent = 'Entrando…';
       try {
         const r = await api('admin/auth', { method: 'POST', body: { password: pw } });
-        if (demo) { health = { demo: true }; return start(); }
-        if (r && r.ok && !r.db) { demo = true; health = { demo: true, noDb: true }; return start(); }
-        health = r || {}; start();
+        if (demo) { health = { demo: true }; return start().catch(fatal); }
+        if (r && r.ok && !r.db) { demo = true; health = { demo: true, noDb: true }; return start().catch(fatal); }
+        health = r || {}; start().catch(fatal);
       } catch (err) {
         $('#login-err').innerHTML = `<div class="notice error">${esc(err.message)}</div>`;
         b.classList.remove('is-loading'); b.textContent = 'Entrar';
@@ -196,7 +197,14 @@
   let tab = (location.hash || '#citas').slice(1);
 
   async function start() {
-    settings = await api('admin/settings');
+    try { settings = await api('admin/settings'); }
+    catch (e) {
+      if (e.status === 401) return login({ msg: 'Tu sesión ha caducado. Vuelve a entrar.' });
+      if (demo) throw e;
+      // La base de datos no responde (clave mal copiada, proyecto pausado…): seguimos en modo local y lo avisamos
+      demo = true; health = { demo: true, noDb: true, dbError: e.message };
+      settings = await api('admin/settings');
+    }
     app.innerHTML = `<div class="adm">
       <header class="adm-top">
         <span class="brand-name">Panel</span>
@@ -311,6 +319,7 @@
     });
   }
   function demoNotice() {
+    if (health.noDb && health.dbError) return `<div class="notice error" style="margin-bottom:1.2rem"><strong>La base de datos no responde</strong> (${esc(health.dbError)}). Revisa en Vercel que <code>SUPABASE_URL</code> y <code>SUPABASE_SERVICE_ROLE_KEY</code> estén bien copiadas y vuelve a publicar. Mientras tanto, los cambios se guardan solo en este dispositivo. <button class="link" type="button" data-demo-reset>Restablecer datos de ejemplo</button></div>`;
     if (health.noDb) return `<div class="notice error" style="margin-bottom:1.2rem"><strong>Falta conectar Supabase en Vercel.</strong> Puedes usar el panel, pero los cambios se guardan solo en este dispositivo y los visitantes no los verán. Añade <code>SUPABASE_URL</code> y <code>SUPABASE_SERVICE_ROLE_KEY</code> en Vercel y vuelve a publicar. <button class="link" type="button" data-demo-reset>Restablecer datos de ejemplo</button></div>`;
     return `<div class="notice" style="margin-bottom:1.2rem">Modo demostración: los cambios se guardan solo en este dispositivo y se ven en la vista previa. Cuando la web esté publicada con Supabase, se guardarán para todos. <button class="link" type="button" data-demo-reset>Restablecer datos de ejemplo</button></div>`;
   }
@@ -809,5 +818,19 @@
     });
   }
 
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
+  function fatal(err) {
+    console.error(err);
+    app.innerHTML = `<div class="login"><div class="setup">
+      <span class="brand" style="justify-self:start;text-align:left"><span class="brand-name">Cristhian Pérez</span><span class="brand-sub" style="padding-left:0">Panel del estudio</span></span>
+      <h1 class="display h3" style="margin:.4rem 0 0">No se pudo abrir el panel</h1>
+      <p class="muted" style="margin:0">Comprueba la conexión y vuelve a intentarlo. Si sigue pasando, haz una captura de esta pantalla.</p>
+      <code class="mono" style="font-size:.75rem;overflow-wrap:anywhere;background:var(--surface);padding:.6rem">${esc(String((err && err.message) || err))}</code>
+      <button class="btn" type="button" onclick="location.reload()">Reintentar</button>
+      <button class="btn btn-ghost" type="button" id="force-demo">Abrir en modo demostración</button>
+      <a class="link mono" href="../index.html">← Volver a la web</a>
+    </div></div>`;
+    const fd = $('#force-demo'); if (fd) fd.addEventListener('click', () => { demo = true; health = { demo: true }; start().catch(fatal); });
+  }
+  const run = () => { try { Promise.resolve(boot()).catch(fatal); } catch (e) { fatal(e); } };
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run); else run();
 })();

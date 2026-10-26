@@ -47,12 +47,21 @@
   };
 
   CP.api = async (path, opts = {}) => {
-    const r = await fetch(CP.root + 'api/' + path, {
-      method: opts.method || 'GET',
-      headers: opts.body ? { 'Content-Type': 'application/json' } : undefined,
-      body: opts.body ? JSON.stringify(opts.body) : undefined,
-      credentials: 'same-origin',
-    });
+    const ctrl = 'AbortController' in window ? new AbortController() : null;
+    const timer = ctrl ? setTimeout(() => ctrl.abort(), opts.timeout || 15000) : null;
+    let r;
+    try {
+      r = await fetch(CP.root + 'api/' + path, {
+        method: opts.method || 'GET',
+        headers: opts.body ? { 'Content-Type': 'application/json' } : undefined,
+        body: opts.body ? JSON.stringify(opts.body) : undefined,
+        credentials: 'same-origin',
+        cache: 'no-store',
+        signal: ctrl ? ctrl.signal : undefined,
+      });
+    } catch (e) {
+      throw Object.assign(new Error(e.name === 'AbortError' ? 'El servidor tarda demasiado en responder.' : 'Sin conexión con el servidor.'), { status: 0 });
+    } finally { if (timer) clearTimeout(timer); }
     let data = null;
     try { data = await r.json(); } catch {}
     if (!r.ok) { const e = new Error((data && data.error) || `Error ${r.status}`); e.status = r.status; e.data = data; throw e; }
