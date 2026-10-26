@@ -48,7 +48,7 @@ function checkPassword(given) {
 
 function setSessionCookie(res, token) {
   const secure = process.env.VERCEL ? '; Secure' : '';
-  res.setHeader('Set-Cookie', `${COOKIE}=${token}; Path=/; HttpOnly; SameSite=Strict; Max-Age=${token ? TTL_SECONDS : 0}${secure}`);
+  res.setHeader('Set-Cookie', `${COOKIE}=${token}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${token ? TTL_SECONDS : 0}${secure}`);
 }
 
 function requireAdmin(req) {
