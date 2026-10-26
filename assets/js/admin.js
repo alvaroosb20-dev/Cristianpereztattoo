@@ -191,7 +191,7 @@
 
   // ---------- Estructura ----------
   const TABS = [
-    ['citas', 'Citas'], ['preparando', 'Preparando web'], ['calendario', 'Calendario'], ['horario', 'Horario y bloqueos'], ['precios', 'Precios y señal'],
+    ['citas', 'Citas'], ['dias', 'Días libres y ocupados'], ['preparando', 'Preparando web'], ['calendario', 'Calendario'], ['horario', 'Horario y bloqueos'], ['precios', 'Precios y señal'],
     ['productos', 'Productos'], ['pedidos', 'Pedidos'], ['portafolio', 'Portafolio'], ['opiniones', 'Opiniones'], ['estudio', 'Estudio y textos'],
   ];
   let tab = (location.hash || '#citas').slice(1);
@@ -252,7 +252,7 @@
     const v = $('#view');
     v.innerHTML = '<p class="muted">Cargando…</p>';
 
-    const views = { citas, preparando, calendario, horario, precios, productos, pedidos, portafolio, opiniones, estudio };
+    const views = { citas, dias, preparando, calendario, horario, precios, productos, pedidos, portafolio, opiniones, estudio };
     (views[tab] || citas)(v).then(() => { if (health.demo && tab !== 'preparando' && !v.querySelector('[data-demo-reset]')) v.insertAdjacentHTML('afterbegin', demoNotice()); }).catch((e) => { v.innerHTML = `<div class="notice error">${esc(e.message)}</div>`; if (e.status === 401) login({ msg: 'Tu sesión ha caducado. Vuelve a entrar.' }); });
   }
   async function saveSettings(patch, btn) {
@@ -275,6 +275,133 @@
   function closeDrawer() { $$('.drawer, .drawer-bg').forEach((e) => e.remove()); document.body.style.overflow = ''; }
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeDrawer(); });
 
+
+
+  // ---------- DÍAS LIBRES Y OCUPADOS ----------
+  let diasMonth = A.canaryNow().date.slice(0, 7);
+  async function dias(v) {
+    const sch = settings.schedule;
+    const [y, m] = diasMonth.split('-').map(Number);
+    const last = new Date(Date.UTC(y, m, 0)).getUTCDate();
+    const from = `${diasMonth}-01`, to = `${diasMonth}-${String(last).padStart(2, '0')}`;
+    const [blocked, bk] = await Promise.all([
+      api('admin/collection?type=blocked'),
+      api(`admin/bookings?status=pending_payment,pending,confirmed,needs_attention,completed&from=${from}&to=${to}`),
+    ]);
+    const today = A.canaryNow().date;
+    const extraOf = (d) => (sch.extra_open || []).find((x) => x.date === d);
+    const weekCfg = (d) => (sch.days || {})[A.weekday(d)] || { closed: true };
+    const fullBlock = (d) => blocked.find((b) => b.date_from <= d && d <= b.date_to && b.start_min == null);
+    const partBlocks = (d) => blocked.filter((b) => b.date_from <= d && d <= b.date_to && b.start_min != null);
+    const nowIso = new Date().toISOString();
+    const dayBookings = (d) => bk.bookings.filter((b) => b.appt_date === d && (b.status !== 'pending_payment' || A.isActiveBooking(b, nowIso)));
+    function state(d) {
+      if (fullBlock(d)) return 'busy';
+      if (extraOf(d)) return 'extra';
+      if (weekCfg(d).closed) return 'closed';
+      return 'free';
+    }
+    const LBL = { free: 'Libre', busy: 'Ocupado', closed: 'Cerrado', extra: 'Abierto extra' };
+    const offset = (new Date(Date.UTC(y, m - 1, 1)).getUTCDay() + 6) % 7;
+    let cells = ['L', 'M', 'X', 'J', 'V', 'S', 'D'].map((x) => `<div class="dc-dow label">${x}</div>`).join('') + '<div></div>'.repeat(offset);
+    for (let i = 1; i <= last; i++) {
+      const d = `${diasMonth}-${String(i).padStart(2, '0')}`;
+      const st = state(d), n = dayBookings(d).length, past = d < today;
+      cells += `<button type="button" class="dc-day ${st}${past ? ' past' : ''}${d === today ? ' today' : ''}" data-day="${d}" aria-label="${i}: ${LBL[st]}${n ? `, ${n} citas` : ''}">
+        <span class="dc-n">${i}</span><span class="dc-s">${LBL[st]}</span>${n ? `<span class="dc-b">${n}</span>` : ''}${partBlocks(d).length && st !== 'busy' ? '<span class="dc-p" title="Horas bloqueadas"></span>' : ''}
+      </button>`;
+    }
+    const title = CP.cap(new Date(Date.UTC(y, m - 1, 1)).toLocaleDateString('es-ES', { month: 'long', year: 'numeric', timeZone: 'UTC' }).replace(' de ', ' '));
+    v.innerHTML = `
+      <div class="adm-head"><h1>Días libres y ocupados</h1></div>
+      <p class="muted" style="margin:-.6rem 0 1.2rem;max-width:62ch">Toca un día para marcarlo como ocupado, volver a dejarlo libre o abrirlo aunque normalmente cierres. La web solo ofrece horas en los días libres.</p>
+      <div class="box">
+        <div class="cal-head" style="margin:0">
+          <button class="icon-btn" type="button" data-dm="-1" aria-label="Mes anterior">‹</button>
+          <h3 style="margin:0;font-weight:500;text-transform:uppercase;letter-spacing:-.02em">${esc(title)}</h3>
+          <button class="icon-btn" type="button" data-dm="1" aria-label="Mes siguiente">›</button>
+        </div>
+        <div class="dc-grid">${cells}</div>
+        <div class="dc-legend mono"><span class="free">Libre</span><span class="busy">Ocupado</span><span class="closed">Cerrado</span><span class="extra">Abierto extra</span><span class="bk">Nº citas</span></div>
+      </div>
+      <div class="row-actions" style="margin-top:1rem"><button class="link" type="button" data-goto="horario">Cambiar el horario semanal y bloquear varios días seguidos →</button></div>`;
+    $$('[data-dm]', v).forEach((b) => b.addEventListener('click', () => { const nd = new Date(Date.UTC(y, m - 1 + Number(b.dataset.dm), 1)); diasMonth = `${nd.getUTCFullYear()}-${String(nd.getUTCMonth() + 1).padStart(2, '0')}`; dias(v); }));
+    $('[data-goto]', v).addEventListener('click', () => { tab = 'horario'; history.replaceState(null, '', '#horario'); show(); });
+    $$('[data-day]', v).forEach((b) => b.addEventListener('click', () => openDay(b.dataset.day)));
+
+    function openDay(d) {
+      const st = state(d), fb = fullBlock(d), parts = partBlocks(d), list = dayBookings(d), ex = extraOf(d), wc = weekCfg(d);
+      const nice = CP.cap(new Date(`${d}T12:00:00Z`).toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'UTC' }));
+      const hours = ex ? `${ex.open}–${ex.close}` : wc.closed ? 'Cerrado' : `${wc.open}–${wc.close}`;
+      const dr = drawer(`
+        <div class="drawer-top"><div><span class="label muted">${esc(LBL[st])}</span><h2 class="display h3" style="margin:.3rem 0">${esc(nice)}</h2><span class="mono muted">Horario: ${esc(hours)}</span></div><button class="icon-btn" data-close aria-label="Cerrar">${CP.icon.close}</button></div>
+        ${list.length ? `<div class="box"><span class="label">Citas este día</span>${list.map((b) => `<div class="sum-row"><span>${A.fmtMin(b.start_min)}–${A.fmtMin(b.end_min)} · ${esc(b.name)}</span>${pill(b.status)}</div>`).join('')}</div>` : ''}
+        ${st === 'busy' ? `
+          <div class="box"><span class="label">Día ocupado</span><p class="muted" style="margin:0">${esc(fb.reason || 'Sin motivo')}${fb.date_from !== fb.date_to ? ` · bloqueo del ${esc(dLabel(fb.date_from))} al ${esc(dLabel(fb.date_to))}` : ''}</p>
+            <button class="btn btn-gold" type="button" data-act="free">Marcar como libre</button></div>` : ''}
+        ${st === 'free' || st === 'extra' ? `
+          <div class="box"><span class="label">Marcar ocupado</span>
+            <label class="field"><span class="label muted">Motivo (opcional, solo lo ves tú)</span><input class="input" id="dy-reason" placeholder="Vacaciones, convención, día personal…"></label>
+            <button class="btn" type="button" data-act="busy">Ocupado todo el día</button>
+            <div class="form-grid">
+              <label class="field"><span class="label muted">Desde</span><input class="input" type="time" id="dy-s" value="11:00"></label>
+              <label class="field"><span class="label muted">Hasta</span><input class="input" type="time" id="dy-e" value="14:00"></label>
+            </div>
+            <button class="btn btn-ghost" type="button" data-act="hours">Ocupar solo esas horas</button>
+          </div>` : ''}
+        ${parts.length ? `<div class="box"><span class="label">Horas ocupadas</span>${parts.map((p) => `<div class="sum-row"><span>${A.fmtMin(p.start_min)}–${A.fmtMin(p.end_min)}${p.reason ? ' · ' + esc(p.reason) : ''}</span><button class="link" type="button" data-unpart="${p.id}">Quitar</button></div>`).join('')}</div>` : ''}
+        ${st === 'closed' ? `
+          <div class="box"><span class="label">Abrir este día</span><p class="muted" style="margin:0">Normalmente cierras este día de la semana. Ábrelo solo esta fecha:</p>
+            <div class="form-grid">
+              <label class="field"><span class="label muted">Abre</span><input class="input" type="time" id="dy-o" value="11:00"></label>
+              <label class="field"><span class="label muted">Cierra</span><input class="input" type="time" id="dy-c" value="19:00"></label>
+            </div>
+            <button class="btn btn-gold" type="button" data-act="open">Abrir y dejarlo libre</button></div>` : ''}
+        ${st === 'extra' ? `<div class="box"><span class="label">Día abierto de forma excepcional</span><button class="btn btn-ghost" type="button" data-act="close">Volver a cerrarlo</button></div>` : ''}
+        ${d < today ? '<p class="mono muted" style="margin:0;font-size:.75rem">Este día ya ha pasado.</p>' : ''}
+        <div id="dy-err"></div>`);
+      const err = (e) => { $('#dy-err', dr).innerHTML = `<div class="notice error">${esc(e.message)}</div>`; };
+      const done = (msg) => { toast(msg); closeDrawer(); dias(v); };
+      dr.addEventListener('click', async (e) => {
+        const un = e.target.closest('[data-unpart]');
+        if (un) { try { await api(`admin/collection?type=blocked&id=${un.dataset.unpart}`, { method: 'DELETE' }); done('Horas liberadas'); } catch (x) { err(x); } return; }
+        const b = e.target.closest('[data-act]');
+        if (!b) return;
+        b.classList.add('is-loading');
+        try {
+          const a = b.dataset.act;
+          if (a === 'busy') {
+            await api('admin/collection?type=blocked', { method: 'POST', body: { date_from: d, date_to: d, start_min: null, end_min: null, reason: $('#dy-reason', dr).value } });
+            done(list.length ? 'Día ocupado. Ojo: ya tiene citas, revísalas.' : 'Día marcado como ocupado');
+          } else if (a === 'hours') {
+            const s1 = A.toMin($('#dy-s', dr).value), e1 = A.toMin($('#dy-e', dr).value);
+            if (!(e1 > s1)) throw new Error('La hora de fin debe ser posterior a la de inicio.');
+            await api('admin/collection?type=blocked', { method: 'POST', body: { date_from: d, date_to: d, start_min: s1, end_min: e1, reason: $('#dy-reason', dr).value } });
+            done('Horas marcadas como ocupadas');
+          } else if (a === 'free') {
+            // Si el bloqueo abarca varios días, se parte en dos y solo se libera este
+            if (fb.date_from === fb.date_to) await api(`admin/collection?type=blocked&id=${fb.id}`, { method: 'DELETE' });
+            else {
+              const prev = A.addDays(d, -1), next = A.addDays(d, 1);
+              if (fb.date_from <= prev) await api('admin/collection?type=blocked', { method: 'PATCH', body: { id: fb.id, date_to: prev } });
+              else await api(`admin/collection?type=blocked&id=${fb.id}`, { method: 'DELETE' });
+              if (next <= fb.date_to) await api('admin/collection?type=blocked', { method: 'POST', body: { date_from: next, date_to: fb.date_to, start_min: null, end_min: null, reason: fb.reason || '' } });
+            }
+            done('Día libre: ya se puede reservar');
+          } else if (a === 'open') {
+            const o = $('#dy-o', dr).value, c = $('#dy-c', dr).value;
+            if (!(A.toMin(c) > A.toMin(o))) throw new Error('La hora de cierre debe ser posterior a la de apertura.');
+            const extra = (sch.extra_open || []).filter((x) => x.date !== d && x.date >= today).concat([{ date: d, open: o, close: c }]);
+            await saveSettings({ schedule: { ...sch, extra_open: extra } });
+            closeDrawer(); dias(v);
+          } else if (a === 'close') {
+            await saveSettings({ schedule: { ...sch, extra_open: (sch.extra_open || []).filter((x) => x.date !== d) } });
+            closeDrawer(); dias(v);
+          }
+        } catch (x) { err(x); b.classList.remove('is-loading'); }
+      });
+    }
+  }
 
   // ---------- PREPARANDO WEB ----------
   async function preparando(v) {
@@ -462,7 +589,7 @@
     const byDay = {};
     list.forEach((b) => (byDay[b.appt_date] = byDay[b.appt_date] || []).push(b));
     const isBlocked = (date) => blocked.some((bl) => bl.date_from <= date && date <= bl.date_to && bl.start_min == null);
-    const closed = (date) => ((settings.schedule.days || {})[A.weekday(date)] || {}).closed;
+    const closed = (date) => !(settings.schedule.extra_open || []).some((x) => x.date === date) && ((settings.schedule.days || {})[A.weekday(date)] || {}).closed;
     const ev = (b) => `<button class="ev ${b.status}" type="button" data-open="${b.id}" title="${esc(b.name)}">${A.fmtMin(b.start_min)} ${esc(b.name)}${calView !== 'month' ? `<br><span class="muted">${esc(b.style || '')} · ${A.fmtMin(b.end_min)}</span>` : ''}</button>`;
     const title = calView === 'month' ? new Date(Date.UTC(y, m - 1, 1)).toLocaleDateString('es-ES', { month: 'long', year: 'numeric', timeZone: 'UTC' })
       : calView === 'week' ? `${dLabel(from)} – ${dLabel(to)}` : dLabel(from);
@@ -548,7 +675,7 @@
         const breaks = $('[data-f="breaks"]', row).value.split(',').map((x) => x.trim()).filter(Boolean).map((x) => { const [f, t] = x.split('-').map((y) => y.trim()); return { from: f, to: t }; }).filter((b) => /^\d{1,2}:\d{2}$/.test(b.from) && /^\d{1,2}:\d{2}$/.test(b.to));
         days[k] = open ? { open: $('[data-f="from"]', row).value, close: $('[data-f="to"]', row).value, breaks } : { closed: true };
       }
-      saveSettings({ schedule: { slot_step_min: Number($('#s-step').value), min_notice_hours: Number($('#s-notice').value), max_days_ahead: Number($('#s-max').value), hold_minutes: Math.max(31, Number($('#s-hold').value)), days } }, e.target);
+      saveSettings({ schedule: { extra_open: (settings.schedule.extra_open || []), slot_step_min: Number($('#s-step').value), min_notice_hours: Number($('#s-notice').value), max_days_ahead: Number($('#s-max').value), hold_minutes: Math.max(31, Number($('#s-hold').value)), days } }, e.target);
     });
     $('#bl-add').addEventListener('click', async () => {
       const from = $('#bl-from').value;

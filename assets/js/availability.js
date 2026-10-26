@@ -60,7 +60,8 @@
     for (let d = 1; d <= daysInMonth; d++) {
       const date = `${y}-${pad(m)}-${pad(d)}`;
       if (date < now.date || date > lastDate) continue;
-      const cfg = (s.days || {})[weekday(date)] || { closed: true };
+      const extra = (s.extra_open || []).find((x) => x.date === date);
+      const cfg = extra ? { open: extra.open, close: extra.close, breaks: [] } : ((s.days || {})[weekday(date)] || { closed: true });
       if (cfg.closed) { closedDays.push(date); continue; }
 
       const busy = [];
