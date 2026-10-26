@@ -100,9 +100,30 @@ class HttpError extends Error {
 }
 
 // ---------- Supabase (PostgREST + Storage) ----------
+const DEFAULT_SUPABASE_URL = 'https://ihyvszeikhvcunswrdfa.supabase.co';
+const netReason = (e) => {
+  const c = e && (e.cause || e);
+  return [c && c.code, c && c.message, e && e.message].filter(Boolean).filter((v, i, a) => a.indexOf(v) === i).join(' · ').slice(0, 180);
+};
+// Llama a Supabase; si la dirección configurada no responde, prueba con la del proyecto del estudio.
 async function fetchSafe(url, opts) {
+  if (typeof fetch !== 'function') throw new HttpError(500, `Este servidor usa Node ${process.version}, sin fetch. En Vercel → Settings → General → Node.js Version, elige 20.x o 22.x y vuelve a publicar.`);
   try { return await fetch(url, opts); }
-  catch (e) { const err = new HttpError(502, `No se puede conectar con la base de datos (${env.SUPABASE_URL || 'sin dirección'}): revisa SUPABASE_URL en Vercel.`); err.cause = e; console.error('[supabase fetch]', e); throw err; }
+  catch (e) {
+    console.error('[supabase fetch]', url, e);
+    if (env.SUPABASE_URL !== DEFAULT_SUPABASE_URL && url.startsWith(env.SUPABASE_URL)) {
+      const alt = DEFAULT_SUPABASE_URL + url.slice(env.SUPABASE_URL.length);
+      try {
+        const r = await fetch(alt, opts);
+        console.warn('[supabase] SUPABASE_URL no responde; usando', DEFAULT_SUPABASE_URL);
+        env.SUPABASE_URL = DEFAULT_SUPABASE_URL;
+        return r;
+      } catch (e2) { console.error('[supabase fetch alt]', e2); }
+    }
+    const host = (() => { try { return new URL(url).host; } catch { return url.slice(0, 60); } })();
+    const err = new HttpError(502, `No se puede conectar con la base de datos (${host}): ${netReason(e)}. Revisa SUPABASE_URL en Vercel o bórrala.`);
+    err.cause = e; throw err;
+  }
 }
 // Acepta la clave secreta nueva (sb_secret_…, solo va en «apikey») y la service_role antigua (JWT, también como Bearer).
 function sbAuth() {
@@ -140,7 +161,7 @@ async function db(path, { method = 'GET', body, prefer, headers } = {}) {
 
 async function storageUpload(bucket, path, buffer, contentType) {
   if (!hasDb()) throw new HttpError(503, 'El almacenamiento no está configurado.');
-  const r = await fetch(`${env.SUPABASE_URL}/storage/v1/object/${bucket}/${path}`, {
+  const r = await fetchSafe(`${env.SUPABASE_URL}/storage/v1/object/${bucket}/${path}`, {
     method: 'POST',
     headers: {
       ...sbAuth(),
@@ -165,7 +186,7 @@ async function storageDelete(bucket, path) {
 
 async function storageSignedUrl(bucket, path, expiresIn = 3600) {
   if (!path) return null;
-  const r = await fetch(`${env.SUPABASE_URL}/storage/v1/object/sign/${bucket}/${path}`, {
+  const r = await fetchSafe(`${env.SUPABASE_URL}/storage/v1/object/sign/${bucket}/${path}`, {
     method: 'POST',
     headers: {
       ...sbAuth(),
