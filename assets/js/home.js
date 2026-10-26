@@ -35,9 +35,10 @@ CP.ready((site) => {
   const mapsQ = encodeURIComponent(st.maps_query || st.address || st.city);
   const mapsDir = `https://www.google.com/maps/dir/?api=1&destination=${mapsQ}`;
   CP.$('#map').innerHTML = `
-    <a class="map-frame" href="${mapsDir}" target="_blank" rel="noopener" aria-label="Abrir la ruta al estudio en Google Maps">
-      <iframe title="Mapa: ${CP.esc(st.address || st.city)}" src="https://www.google.com/maps?q=${mapsQ}&z=16&output=embed" loading="lazy" referrerpolicy="no-referrer-when-downgrade" tabindex="-1"></iframe>
-    </a>
+    <div class="map-frame">
+      <div class="map-fallback"><span class="label">[ Mapa ]</span><p>${CP.esc(st.address || st.city)}</p><a class="link" href="${mapsDir}" target="_blank" rel="noopener">Abrir en Google Maps</a></div>
+      <iframe title="Mapa de Google: ${CP.esc(st.address || st.city)}" src="https://www.google.com/maps?q=${mapsQ}&hl=es&z=17&output=embed" loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe>
+    </div>
     <div class="map-bar"><span class="label">[ ${CP.esc(st.address || st.city)} ]</span><a class="btn" href="${mapsDir}" target="_blank" rel="noopener">Cómo llegar</a></div>`;
   CP.$('#contact').innerHTML = `
     <div><span class="label muted">Dirección</span><p class="v">${CP.esc(st.address || st.city)}</p><a class="link mono" href="${mapsDir}" target="_blank" rel="noopener">Cómo llegar</a></div>

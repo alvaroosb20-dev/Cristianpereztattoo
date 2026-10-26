@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" role="img" aria-label="Tarjeta regalo">
+<defs><radialGradient id="v" cx="50%" cy="45%" r="70%"><stop offset="0" stop-color="#f4f4f2"/><stop offset="1" stop-color="#e9e9e6"/></radialGradient></defs>
+<rect width="800" height="800" fill="url(#v)"/>
+<ellipse cx="400" cy="700" rx="240" ry="18" fill="#000" opacity=".08"/>
+<g transform="rotate(-8 400 400)"><text x="210" y="320" font-family="Arial" font-size="13" letter-spacing="5" fill="#b8975a">TARJETA REGALO</text><text x="210" y="420" font-family="Georgia, serif" font-size="46" fill="#ece6da">Cristhian</text><text x="210" y="470" font-family="Georgia, serif" font-style="italic" font-size="46" fill="#ece6da">Pérez</text><text x="590" y="520" text-anchor="end" font-family="Courier, monospace" font-size="16" fill="#ece6da">TATTOO</text><text x="590" y="320" text-anchor="end" font-family="Helvetica, Arial, sans-serif" font-weight="700" font-size="40" letter-spacing="-1" fill="#ece6da">100 €</text><text x="590" y="345" text-anchor="end" font-family="Arial" font-size="12" letter-spacing="3" fill="#b8975a">IMPORTE</text></g>
+</svg>

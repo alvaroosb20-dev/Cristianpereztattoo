@@ -204,14 +204,32 @@ select * from (values
   ('print-proporcion-aurea', 'Print Proporción Áurea', 'prints', 4000, 15, false, 7, array['img/products/print.svg'],
    'Lámina A3 del boceto original de la estatua con espiral áurea. Papel algodón de 300 g, edición numerada.',
    '[{"name":"Formato","options":[{"label":"A3"},{"label":"A4","price_cents":2800}]}]'::jsonb),
-  ('tarjeta-regalo', 'Tarjeta regalo', 'regalo', 10000, 999, false, 8, array['img/products/tarjeta-regalo.svg'],
-   'Regala un tatuaje. Elige el importe (100 €, 150 €, 200 € o 250 €) o una sesión de brazo completa por 370 €. Válida para sesiones en el estudio durante 12 meses.',
-   '[{"name":"Importe","options":[{"label":"100 €","price_cents":10000},{"label":"150 €","price_cents":15000},{"label":"200 €","price_cents":20000},{"label":"250 €","price_cents":25000},{"label":"Sesión de brazo · 370 €","price_cents":37000}]}]'::jsonb)
+  ('tarjeta-regalo-100', 'Tarjeta regalo 100 €', 'regalo', 10000, 999, false, 8, array['img/products/tarjeta-regalo-100.svg'],
+   'Regala un tatuaje: tarjeta de 100 € para usar en el estudio. Válida durante 12 meses desde la compra.', '[]'::jsonb),
+  ('tarjeta-regalo-150', 'Tarjeta regalo 150 €', 'regalo', 15000, 999, false, 9, array['img/products/tarjeta-regalo-150.svg'],
+   'Regala un tatuaje: tarjeta de 150 € para usar en el estudio. Válida durante 12 meses desde la compra.', '[]'::jsonb),
+  ('tarjeta-regalo-200', 'Tarjeta regalo 200 €', 'regalo', 20000, 999, false, 10, array['img/products/tarjeta-regalo-200.svg'],
+   'Regala un tatuaje: tarjeta de 200 € para usar en el estudio. Válida durante 12 meses desde la compra.', '[]'::jsonb),
+  ('tarjeta-regalo-250', 'Tarjeta regalo 250 €', 'regalo', 25000, 999, false, 11, array['img/products/tarjeta-regalo-250.svg'],
+   'Regala un tatuaje: tarjeta de 250 € para usar en el estudio. Válida durante 12 meses desde la compra.', '[]'::jsonb),
+  ('tarjeta-regalo-brazo', 'Tarjeta regalo · Sesión de brazo', 'regalo', 37000, 999, false, 12, array['img/products/tarjeta-regalo-brazo.svg'],
+   'Regala una sesión de brazo completa con Cristhian. Válida durante 12 meses desde la compra.', '[]'::jsonb)
 ) v(slug, name, category, price_cents, stock, featured, sort, images, description, variants)
 where not exists (select 1 from public.products);
 
--- Tarjeta regalo: importes 100/150/200/250 € y sesión de brazo 370 € (también si ya existía)
-update public.products set price_cents = 10000,
-  description = 'Regala un tatuaje. Elige el importe (100 €, 150 €, 200 € o 250 €) o una sesión de brazo completa por 370 €. Válida para sesiones en el estudio durante 12 meses.',
-  variants = '[{"name":"Importe","options":[{"label":"100 €","price_cents":10000},{"label":"150 €","price_cents":15000},{"label":"200 €","price_cents":20000},{"label":"250 €","price_cents":25000},{"label":"Sesión de brazo · 370 €","price_cents":37000}]}]'::jsonb
-where slug = 'tarjeta-regalo';
+-- Tarjetas regalo por separado: 100, 150, 200, 250 € y sesión de brazo 370 €
+update public.products set active = false where slug = 'tarjeta-regalo';
+insert into public.products (slug, name, category, price_cents, stock, featured, sort, images, description, variants)
+select * from (values
+  ('tarjeta-regalo-100', 'Tarjeta regalo 100 €', 'regalo', 10000, 999, false, 8, array['img/products/tarjeta-regalo-100.svg'],
+   'Regala un tatuaje: tarjeta de 100 € para usar en el estudio. Válida durante 12 meses desde la compra.', '[]'::jsonb),
+  ('tarjeta-regalo-150', 'Tarjeta regalo 150 €', 'regalo', 15000, 999, false, 9, array['img/products/tarjeta-regalo-150.svg'],
+   'Regala un tatuaje: tarjeta de 150 € para usar en el estudio. Válida durante 12 meses desde la compra.', '[]'::jsonb),
+  ('tarjeta-regalo-200', 'Tarjeta regalo 200 €', 'regalo', 20000, 999, false, 10, array['img/products/tarjeta-regalo-200.svg'],
+   'Regala un tatuaje: tarjeta de 200 € para usar en el estudio. Válida durante 12 meses desde la compra.', '[]'::jsonb),
+  ('tarjeta-regalo-250', 'Tarjeta regalo 250 €', 'regalo', 25000, 999, false, 11, array['img/products/tarjeta-regalo-250.svg'],
+   'Regala un tatuaje: tarjeta de 250 € para usar en el estudio. Válida durante 12 meses desde la compra.', '[]'::jsonb),
+  ('tarjeta-regalo-brazo', 'Tarjeta regalo · Sesión de brazo', 'regalo', 37000, 999, false, 12, array['img/products/tarjeta-regalo-brazo.svg'],
+   'Regala una sesión de brazo completa con Cristhian. Válida durante 12 meses desde la compra.', '[]'::jsonb)
+) v(slug, name, category, price_cents, stock, featured, sort, images, description, variants)
+where not exists (select 1 from public.products p where p.slug = v.slug);

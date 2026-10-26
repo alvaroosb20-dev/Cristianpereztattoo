@@ -134,7 +134,7 @@ const ok = (name) => { passed++; console.log('  ✓', name); };
   sql("truncate bookings, orders, blocked_dates, reviews; delete from products where slug = 'pegatinas-estudio'; update settings set data = '{}'::jsonb where id = 1; update products set stock = 5 where slug = 'print-proporcion-aurea';");
 
   const site = await call('site.js');
-  assert.equal(site.status, 200); assert.equal(site.data.mode, 'live'); assert.equal(site.data.products.length, 8);
+  assert.equal(site.status, 200); assert.equal(site.data.mode, 'live'); assert.equal(site.data.products.length, 12);
   ok('GET /api/site devuelve productos desde la base de datos');
 
   // Elegir un día con huecos el mes que viene
@@ -186,9 +186,9 @@ const ok = (name) => { passed++; console.log('  ✓', name); };
   assert.ok(whatsapps[0].searchParams.get('text').includes(r1.data.ref) && whatsapps[0].searchParams.get('text').includes('Laura Gómez'));
   ok('Aviso de la reserva por WhatsApp al +34 646 62 37 06 con los datos del cliente');
 
-  const gift = site.data.products.find((p) => p.slug === 'tarjeta-regalo');
-  assert.deepEqual(gift.variants[0].options.map((o) => o.price_cents), [10000, 15000, 20000, 25000, 37000]);
-  ok('Tarjetas regalo: 100, 150, 200, 250 € y sesión de brazo 370 €');
+  const gifts = site.data.products.filter((p) => p.category === 'regalo').map((p) => p.price_cents);
+  assert.deepEqual(gifts, [10000, 15000, 20000, 25000, 37000]);
+  ok('Tarjetas regalo por separado: 100, 150, 200, 250 € y sesión de brazo 370 €');
 
   const wh = await call('stripe-webhook.js', { method: 'POST', body: { id: `evt_completed__${sid1}` } });
   assert.equal(wh.status, 200); assert.equal(emails.length, 2); assert.equal(whatsapps.length, 1);
