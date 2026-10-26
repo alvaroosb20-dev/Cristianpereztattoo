@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" role="img" aria-label="Gorra negra CP">
-<defs><radialGradient id="v" cx="50%" cy="45%" r="70%"><stop offset="0" stop-color="#26231f"/><stop offset="1" stop-color="#1c1a17"/></radialGradient></defs>
+<defs><radialGradient id="v" cx="50%" cy="45%" r="70%"><stop offset="0" stop-color="#f4f4f2"/><stop offset="1" stop-color="#e9e9e6"/></radialGradient></defs>
 <rect width="800" height="800" fill="url(#v)"/>
-<ellipse cx="400" cy="700" rx="240" ry="18" fill="#000" opacity=".35"/>
+<ellipse cx="400" cy="700" rx="240" ry="18" fill="#000" opacity=".08"/>
 <path d="M210 470 Q220 280 400 270 Q580 280 590 470 Z" fill="#0d0c0b" stroke="#2e2a25" stroke-width="3"/><path d="M190 470 Q400 440 610 470 Q640 520 560 530 Q400 500 240 530 Q160 520 190 470Z" fill="#141210" stroke="#2e2a25" stroke-width="3"/><path d="M400 272 L400 462 M300 300 Q330 380 320 462 M500 300 Q470 380 480 462" stroke="#2e2a25" stroke-width="3" fill="none"/><circle cx="400" cy="272" r="9" fill="#0d0c0b" stroke="#2e2a25" stroke-width="3"/><text x="400" y="410" text-anchor="middle" font-family="Georgia, serif" font-style="italic" font-size="72" fill="#ece6da">CP</text>
 </svg>

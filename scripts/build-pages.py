@@ -12,7 +12,7 @@ def head(title, desc, extra=""):
 <title>{title}</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <meta name="description" content="{desc}">
-<meta name="theme-color" content="#0d0c0b">
+<meta name="theme-color" content="#fafaf9">
 <meta property="og:type" content="website">
 <meta property="og:title" content="{title}">
 <meta property="og:description" content="{desc}">

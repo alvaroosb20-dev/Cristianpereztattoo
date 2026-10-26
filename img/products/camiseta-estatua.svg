@@ -1,7 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" role="img" aria-label="Camiseta negra con estatua">
-<defs><radialGradient id="v" cx="50%" cy="45%" r="70%"><stop offset="0" stop-color="#26231f"/><stop offset="1" stop-color="#1c1a17"/></radialGradient></defs>
+<defs><radialGradient id="v" cx="50%" cy="45%" r="70%"><stop offset="0" stop-color="#f4f4f2"/><stop offset="1" stop-color="#e9e9e6"/></radialGradient></defs>
 <rect width="800" height="800" fill="url(#v)"/>
-<ellipse cx="400" cy="700" rx="240" ry="18" fill="#000" opacity=".35"/>
+<ellipse cx="400" cy="700" rx="240" ry="18" fill="#000" opacity=".08"/>
 <path d="M250 190 L330 160 Q400 200 470 160 L550 190 L640 280 L580 340 L540 310 L540 640 L260 640 L260 310 L220 340 L160 280 Z" fill="#0d0c0b" stroke="#2e2a25" stroke-width="3"/><path d="M330 160 Q400 215 470 160" fill="none" stroke="#2e2a25" stroke-width="6"/><g fill="none" stroke="#ece6da" stroke-width="5" stroke-linecap="round">
 <path d="M352 330 Q340 280 390 270 Q450 265 452 320 Q458 370 430 410 Q440 460 400 470 Q360 460 366 410 Q340 380 352 330Z"/>
 <path d="M380 360 q8 -6 16 0 M414 360 q8 -6 16 0 M404 370 l-6 26 l10 2 M388 422 q16 8 30 0"/>

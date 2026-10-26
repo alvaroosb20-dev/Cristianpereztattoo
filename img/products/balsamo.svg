@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" role="img" aria-label="Bálsamo aftercare">
-<defs><radialGradient id="v" cx="50%" cy="45%" r="70%"><stop offset="0" stop-color="#26231f"/><stop offset="1" stop-color="#1c1a17"/></radialGradient></defs>
+<defs><radialGradient id="v" cx="50%" cy="45%" r="70%"><stop offset="0" stop-color="#f4f4f2"/><stop offset="1" stop-color="#e9e9e6"/></radialGradient></defs>
 <rect width="800" height="800" fill="url(#v)"/>
-<ellipse cx="400" cy="700" rx="240" ry="18" fill="#000" opacity=".35"/>
+<ellipse cx="400" cy="700" rx="240" ry="18" fill="#000" opacity=".08"/>
 <rect x="250" y="360" width="300" height="230" rx="20" fill="#ece6da"/><rect x="240" y="300" width="320" height="80" rx="14" fill="#0d0c0b" stroke="#2e2a25" stroke-width="3"/><text x="400" y="460" text-anchor="middle" font-family="Georgia, serif" font-size="40" fill="#0d0c0b">Aftercare</text><text x="400" y="492" text-anchor="middle" font-family="Arial" font-size="13" letter-spacing="4" fill="#0d0c0b">BÁLSAMO · 50 ML</text><line x1="320" y1="520" x2="480" y2="520" stroke="#b8975a" stroke-width="3"/><text x="400" y="555" text-anchor="middle" font-family="Arial" font-size="11" letter-spacing="3" fill="#6d665c">CRISTHIAN PÉREZ TATTOO</text>
 </svg>

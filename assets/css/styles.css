@@ -1,19 +1,19 @@
 /* Cristhian Pérez Tattoo
-   Layout: revista en blanco y negro sobre tinta; rejilla en proporción áurea (1.618fr / 1fr),
-   tipografía Bodoni para titulares, Archivo estrecha para rótulos, mono para datos. */
+   Layout: portfolio editorial en blanco y negro, mucho aire, rejilla 1.618fr / 1fr,
+   una sola grotesca apretada (Inter Tight) en mayúsculas y rótulos entre corchetes. */
 :root {
-  color-scheme: dark;
-  --bg: #0d0c0b;          /* tinta */
-  --surface: #161412;     /* papel quemado */
-  --surface-2: #1f1c19;
-  --line: #2e2a25;
-  --fg: #ece6da;          /* hueso */
-  --mute: #9a9183;
-  --gold: #b8975a;        /* espiral áurea */
-  --gold-ink: #0d0c0b;
-  --ok: #8fb27a;
-  --warn: #d9a54a;
-  --danger: #d0614f;
+  color-scheme: light;
+  --bg: #fafaf9;          /* papel */
+  --surface: #f1f1ef;     /* gris muy claro de las fotos */
+  --surface-2: #e7e7e4;
+  --line: #e2e2df;
+  --fg: #111111;          /* tinta */
+  --mute: #6f6f6c;
+  --gold: #111111;        /* acento = negro, como la referencia */
+  --gold-ink: #fafaf9;
+  --ok: #2f7a3b;
+  --warn: #9a6400;
+  --danger: #b3261e;
 
   --f-display: 'Inter Tight', 'Helvetica Neue', Helvetica, Arial, sans-serif;
   --f-sans: 'Inter Tight', 'Helvetica Neue', Helvetica, Arial, sans-serif;
@@ -37,7 +37,7 @@ body {
 body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 60; background: var(--bg); }
 /* grano de película */
 body::after {
-  content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 100; opacity: .07; mix-blend-mode: overlay;
+  content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 100; opacity: 0; mix-blend-mode: multiply;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 img, video { max-width: 100%; display: block; }
@@ -73,11 +73,11 @@ p { margin: 0 0 1em; }
   font-family: var(--f-sans); font-stretch: 75%; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; font-size: .85rem;
   text-decoration: none; border-radius: var(--radius); transition: background .25s var(--ease), color .25s var(--ease), border-color .25s;
 }
-.btn:hover { background: var(--gold); border-color: var(--gold); color: var(--gold-ink); }
+.btn:hover { background: transparent; border-color: var(--fg); color: var(--fg); }
 .btn-ghost { background: transparent; color: var(--fg); }
 .btn-ghost:hover { background: var(--fg); color: var(--bg); border-color: var(--fg); }
 .btn-gold { background: var(--gold); border-color: var(--gold); color: var(--gold-ink); }
-.btn-gold:hover { background: var(--fg); border-color: var(--fg); }
+.btn-gold:hover { background: transparent; color: var(--fg); border-color: var(--fg); }
 .btn-block { width: 100%; }
 .btn[disabled], .btn.is-loading { opacity: .5; pointer-events: none; }
 .link { background: none; border: 0; padding: 0; text-decoration: underline; text-underline-offset: 3px; color: var(--fg); }
@@ -87,7 +87,7 @@ p { margin: 0 0 1em; }
 .announce { border-bottom: 1px solid var(--line); background: var(--bg); overflow: hidden; white-space: nowrap; }
 .announce-track { display: inline-flex; gap: 3rem; padding: .55rem 0; animation: marquee 32s linear infinite; }
 .announce-track span { font-family: var(--f-sans); font-stretch: 75%; text-transform: uppercase; letter-spacing: .04em; font-size: .72rem; font-weight: 600; }
-.announce-track span::after { content: "✦"; color: var(--gold); margin-left: 3rem; }
+.announce-track span::after { content: "/"; color: var(--mute); margin-left: 3rem; }
 @keyframes marquee { to { transform: translateX(-50%); } }
 
 /* ---------- Cabecera ---------- */
@@ -143,7 +143,7 @@ p { margin: 0 0 1em; }
 .hero-sub { margin: 1.6rem 0 2rem; max-width: 38ch; color: var(--mute); font-size: 1.05rem; }
 .hero-ctas { display: flex; flex-wrap: wrap; gap: .8rem; }
 .hero-media { position: relative; aspect-ratio: 9 / 14; max-height: 78vh; width: 100%; max-width: 100%; background: var(--surface); border: 1px solid var(--line); overflow: hidden; }
-.hero-media video { width: 100%; height: 100%; object-fit: cover; filter: grayscale(.35) contrast(1.05); }
+.hero-media video { width: 100%; height: 100%; object-fit: cover; filter: grayscale(1) contrast(1.05); }
 .hero-media .sound-btn { position: absolute; left: 12px; bottom: 12px; }
 .hero-meta { position: absolute; right: 12px; top: 12px; background: color-mix(in srgb, var(--bg) 70%, transparent); padding: .3rem .6rem; }
 @media (max-width: 860px) {
@@ -187,8 +187,8 @@ p { margin: 0 0 1em; }
 .reel { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
 @media (max-width: 960px) { .reel { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 .tile { position: relative; overflow: hidden; background: var(--surface); border: 1px solid var(--line); cursor: pointer; aspect-ratio: 9 / 14; padding: 0; text-align: left; width: 100%; }
-.tile img, .tile video { width: 100%; height: 100%; object-fit: cover; transition: transform .8s var(--ease), filter .5s; filter: grayscale(.2); }
-.tile:hover img, .tile:hover video { transform: scale(1.04); filter: grayscale(0); }
+.tile img, .tile video { width: 100%; height: 100%; object-fit: cover; transition: transform .8s var(--ease), filter .5s; filter: grayscale(1); }
+.tile:hover img, .tile:hover video { transform: scale(1.03); filter: grayscale(.6); }
 .tile-cap { position: absolute; inset: auto 0 0 0; padding: 2.4rem .9rem .8rem; background: linear-gradient(to top, color-mix(in srgb, var(--bg) 92%, transparent), transparent); display: flex; flex-direction: column; gap: .15rem; }
 .tile-cap .t { font-family: var(--f-display); font-size: 1.1rem; font-weight: 500; letter-spacing: -.02em; line-height: 1.15; }
 .tile-badge { position: absolute; top: .7rem; left: .7rem; }
@@ -196,7 +196,7 @@ p { margin: 0 0 1em; }
 .play-dot svg { width: 20px; height: 20px; fill: var(--fg); margin-left: 3px; }
 .tile:hover .play-dot { transform: scale(1.08); }
 .video-card { cursor: default; }
-.video-card video { filter: none; }
+.video-card video { filter: grayscale(1); }
 .video-card .vc-sound { position: absolute; right: .7rem; bottom: .7rem; z-index: 2; width: 44px; height: 44px; padding: 0; justify-content: center; }
 .video-card .vc-sound[aria-pressed="true"] { background: var(--gold); border-color: var(--gold); color: var(--gold-ink); }
 
@@ -367,15 +367,15 @@ p { margin: 0 0 1em; }
 .stars { color: var(--gold); letter-spacing: .04em; }
 
 /* ---------- Banda de reserva ---------- */
-.book-band { background: var(--fg); color: var(--bg); padding-block: clamp(48px, 8vw, 100px); }
-.book-band .btn { background: var(--bg); color: var(--fg); border-color: var(--bg); }
-.book-band .btn:hover { background: var(--gold); border-color: var(--gold); color: var(--gold-ink); }
-.book-band .muted { color: color-mix(in srgb, var(--bg) 60%, var(--fg)); }
+.book-band { background: var(--surface); color: var(--fg); border-bottom: 1px solid var(--line); padding-block: clamp(48px, 8vw, 100px); }
+.book-band .btn { background: var(--fg); color: var(--bg); border-color: var(--fg); }
+.book-band .btn:hover { background: transparent; color: var(--fg); }
+.book-band .muted { color: var(--mute); }
 .band-grid { display: grid; grid-template-columns: 1.618fr 1fr; gap: 2rem; align-items: end; }
 .band-grid > * { min-width: 0; }
 @media (max-width: 860px) { .band-grid { grid-template-columns: 1fr; } }
 .steps-mini { list-style: none; margin: 0; padding: 0; display: grid; gap: .6rem; counter-reset: s; }
-.steps-mini li { counter-increment: s; display: flex; gap: .8rem; align-items: baseline; border-bottom: 1px solid color-mix(in srgb, var(--bg) 18%, var(--fg)); padding-bottom: .6rem; }
+.steps-mini li { counter-increment: s; display: flex; gap: .8rem; align-items: baseline; border-bottom: 1px solid var(--line); padding-bottom: .6rem; }
 .steps-mini li::before { content: counter(s, decimal-leading-zero); font-family: var(--f-mono); font-size: .75rem; }
 
 /* ---------- Contacto ---------- */

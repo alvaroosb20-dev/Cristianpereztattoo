@@ -50,16 +50,16 @@ async function getReviews() {
 const dateEs = (d) => new Date(`${d}T12:00:00Z`).toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
 
 function emailShell(title, inner, studio) {
-  return `<!doctype html><html><body style="margin:0;background:#0d0c0b;padding:24px;font-family:Helvetica,Arial,sans-serif;color:#ece6da">
-  <div style="max-width:560px;margin:0 auto;background:#171513;border:1px solid #2a2622;padding:28px">
+  return `<!doctype html><html><body style="margin:0;background:#f4f4f2;padding:24px;font-family:Helvetica,Arial,sans-serif;color:#111111">
+  <div style="max-width:560px;margin:0 auto;background:#ffffff;border:1px solid #e2e2df;padding:28px">
     <div style="font-family:Helvetica,Arial,sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:-.02em;font-size:22px;letter-spacing:.04em">${core.esc(studio.name)}</div>
-    <div style="height:1px;background:#b8975a;margin:16px 0 22px"></div>
+    <div style="height:1px;background:#111111;margin:16px 0 22px"></div>
     <h1 style="font-family:Helvetica,Arial,sans-serif;font-weight:600;text-transform:uppercase;letter-spacing:-.02em;font-size:26px;margin:0 0 16px">${title}</h1>
     ${inner}
-    <p style="color:#8f877b;font-size:12px;margin-top:28px">${core.esc(studio.name)} · ${core.esc(studio.address || studio.city)}${studio.phone ? ' · ' + core.esc(studio.phone) : ''}${studio.instagram ? ' · @' + core.esc(studio.instagram) : ''}</p>
+    <p style="color:#6f6f6c;font-size:12px;margin-top:28px">${core.esc(studio.name)} · ${core.esc(studio.address || studio.city)}${studio.phone ? ' · ' + core.esc(studio.phone) : ''}${studio.instagram ? ' · @' + core.esc(studio.instagram) : ''}</p>
   </div></body></html>`;
 }
-const row = (k, v) => `<tr><td style="padding:6px 0;color:#8f877b;font-size:14px;width:44%">${k}</td><td style="padding:6px 0;font-size:14px">${v}</td></tr>`;
+const row = (k, v) => `<tr><td style="padding:6px 0;color:#6f6f6c;font-size:14px;width:44%">${k}</td><td style="padding:6px 0;font-size:14px">${v}</td></tr>`;
 
 // Marca la cita como pagada (idempotente) y envía los correos. Devuelve la cita actualizada.
 async function finalizeBookingPayment(bookingId, session) {
@@ -103,7 +103,7 @@ async function sendBookingEmails(b) {
 
   const clientHtml = emailShell('Señal recibida. Tu fecha está bloqueada.',
     `<p style="font-size:15px;line-height:1.6">Hola ${core.esc(b.name.split(' ')[0])}, hemos recibido el pago de tu señal. Cristhian revisará tu idea y te confirmará la cita y el presupuesto del tatuaje.</p>${table}
-     <p style="font-size:13px;color:#8f877b;line-height:1.6">Este correo sirve como justificante del pago de la señal (${core.euros(b.deposit_cents)}). Stripe te enviará además su propio recibo.${s.deposit_deducted ? ' La señal se descuenta del precio final del tatuaje.' : ''}</p>`, studio);
+     <p style="font-size:13px;color:#6f6f6c;line-height:1.6">Este correo sirve como justificante del pago de la señal (${core.euros(b.deposit_cents)}). Stripe te enviará además su propio recibo.${s.deposit_deducted ? ' La señal se descuenta del precio final del tatuaje.' : ''}</p>`, studio);
   await core.sendEmail({ to: b.email, subject: `Reserva ${b.ref} · señal recibida`, html: clientHtml, replyTo: core.env.OWNER_EMAIL || studio.email || undefined });
 
   const owner = core.env.OWNER_EMAIL || studio.email;
@@ -115,8 +115,8 @@ async function sendBookingEmails(b) {
         ${row('Cliente', core.esc(b.name))}${row('Email', core.esc(b.email))}${row('Teléfono', core.esc(b.phone))}
       </table>
       <p style="font-size:14px;line-height:1.6;margin-top:14px"><strong>Idea:</strong><br>${core.esc(b.description).replace(/\n/g, '<br>')}</p>
-      ${designUrl ? `<p><a href="${designUrl}" style="color:#b8975a">Ver diseño adjunto</a> <span style="color:#8f877b;font-size:12px">(enlace privado, caduca en 7 días)</span></p>` : '<p style="color:#8f877b">Sin diseño adjunto.</p>'}
-      ${site ? `<p><a href="${site}/admin" style="color:#b8975a">Abrir el panel para aprobarla</a></p>` : ''}`, studio);
+      ${designUrl ? `<p><a href="${designUrl}" style="color:#111111">Ver diseño adjunto</a> <span style="color:#6f6f6c;font-size:12px">(enlace privado, caduca en 7 días)</span></p>` : '<p style="color:#6f6f6c">Sin diseño adjunto.</p>'}
+      ${site ? `<p><a href="${site}/admin" style="color:#111111">Abrir el panel para aprobarla</a></p>` : ''}`, studio);
     await core.sendEmail({ to: owner, subject: `Nueva reserva ${b.ref} · ${when}`, html: ownerHtml, replyTo: b.email });
   }
 }
@@ -149,7 +149,7 @@ async function sendOrderEmails(o) {
   const a = o.shipping_address || {};
   const addr = o.shipping_zone === 'recogida' ? 'Recogida en el estudio' : `${core.esc(a.line1)} ${core.esc(a.line2 || '')}, ${core.esc(a.postal_code)} ${core.esc(a.city)} (${core.esc(a.province)})`;
   const html = emailShell('Gracias por tu pedido',
-    `<p style="font-size:15px;line-height:1.6">Pedido <strong>${core.esc(o.ref)}</strong> confirmado. Te avisaremos cuando salga.</p>${table}<p style="font-size:14px;color:#8f877b">Entrega: ${addr}</p>`, studio);
+    `<p style="font-size:15px;line-height:1.6">Pedido <strong>${core.esc(o.ref)}</strong> confirmado. Te avisaremos cuando salga.</p>${table}<p style="font-size:14px;color:#6f6f6c">Entrega: ${addr}</p>`, studio);
   await core.sendEmail({ to: o.customer.email, subject: `Pedido ${o.ref} confirmado`, html });
   const owner = core.env.OWNER_EMAIL || studio.email;
   if (owner) await core.sendEmail({ to: owner, subject: `Nuevo pedido ${o.ref} · ${core.euros(o.total_cents)}`, html: emailShell(`Nuevo pedido · ${core.esc(o.customer.name)}`, `${table}<p style="font-size:14px">Cliente: ${core.esc(o.customer.name)} · ${core.esc(o.customer.email)} · ${core.esc(o.customer.phone)}</p><p style="font-size:14px">Entrega: ${addr}</p>`, studio) });
