@@ -2,22 +2,60 @@
 // Sin dependencias: Supabase, Stripe y Resend se usan por su API REST con fetch.
 const crypto = require('crypto');
 
+// Limpia valores pegados a mano en Vercel: espacios, saltos de línea, comillas, «NOMBRE=valor»…
+const clean = (v, name) => {
+  let x = String(v || '').trim().replace(/^['"`]+|['"`]+$/g, '').trim();
+  if (name && x.toUpperCase().startsWith(name + '=')) x = x.slice(name.length + 1).trim().replace(/^['"`]+|['"`]+$/g, '');
+  return x;
+};
+// Acepta la URL de la API, la del panel de Supabase o solo el id del proyecto, con o sin https://
+function normalizeSupabaseUrl(raw) {
+  let v = clean(raw, 'SUPABASE_URL');
+  if (!v) return '';
+  const dash = v.match(/supabase\.com\/dashboard\/project\/([a-z0-9]{15,30})/i);
+  if (dash) return `https://${dash[1].toLowerCase()}.supabase.co`;
+  if (/^[a-z0-9]{15,30}$/i.test(v)) return `https://${v.toLowerCase()}.supabase.co`;
+  if (!/^https?:\/\//i.test(v)) v = 'https://' + v;
+  try {
+    const u = new URL(v);
+    const ref = u.hostname.match(/^(?:db\.)?([a-z0-9]{15,30})\.supabase\.(co|in)$/i);
+    if (ref) return `https://${ref[1].toLowerCase()}.supabase.co`;
+    return `${u.protocol}//${u.host}`;
+  } catch { return v.replace(/\/+$/, ''); }
+}
+
 const env = {
-  SUPABASE_URL: (process.env.SUPABASE_URL || '').replace(/\/$/, ''),
-  SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY || '',
-  STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY || '',
-  STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET || '',
-  RESEND_API_KEY: process.env.RESEND_API_KEY || '',
-  EMAIL_FROM: process.env.EMAIL_FROM || '',
-  OWNER_EMAIL: process.env.OWNER_EMAIL || '',
-  ADMIN_PASSWORD: process.env.ADMIN_PASSWORD || '',
-  ADMIN_SESSION_SECRET: process.env.ADMIN_SESSION_SECRET || '',
-  SITE_URL: (process.env.SITE_URL || '').replace(/\/$/, ''),
-  OWNER_WHATSAPP: (process.env.OWNER_WHATSAPP || '34646623706').replace(/\D/g, ''),
-  CALLMEBOT_APIKEY: process.env.CALLMEBOT_APIKEY || '',
+  // Proyecto de Supabase del estudio (la URL no es secreta); SUPABASE_URL en Vercel la sustituye si se pone
+  SUPABASE_URL: normalizeSupabaseUrl(process.env.SUPABASE_URL) || 'https://ihyvszeikhvcunswrdfa.supabase.co',
+  SUPABASE_SERVICE_ROLE_KEY: clean(process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVICE_KEY, 'SUPABASE_SERVICE_ROLE_KEY'),
+  STRIPE_SECRET_KEY: clean(process.env.STRIPE_SECRET_KEY, 'STRIPE_SECRET_KEY'),
+  STRIPE_WEBHOOK_SECRET: clean(process.env.STRIPE_WEBHOOK_SECRET, 'STRIPE_WEBHOOK_SECRET'),
+  RESEND_API_KEY: clean(process.env.RESEND_API_KEY, 'RESEND_API_KEY'),
+  EMAIL_FROM: clean(process.env.EMAIL_FROM, 'EMAIL_FROM'),
+  OWNER_EMAIL: clean(process.env.OWNER_EMAIL, 'OWNER_EMAIL'),
+  ADMIN_PASSWORD: clean(process.env.ADMIN_PASSWORD, 'ADMIN_PASSWORD'),
+  ADMIN_SESSION_SECRET: clean(process.env.ADMIN_SESSION_SECRET, 'ADMIN_SESSION_SECRET'),
+  SITE_URL: clean(process.env.SITE_URL, 'SITE_URL').replace(/\/$/, ''),
+  OWNER_WHATSAPP: clean(process.env.OWNER_WHATSAPP || '34646623706').replace(/\D/g, ''),
+  CALLMEBOT_APIKEY: clean(process.env.CALLMEBOT_APIKEY, 'CALLMEBOT_APIKEY'),
 };
 
 const hasDb = () => Boolean(env.SUPABASE_URL && env.SUPABASE_SERVICE_ROLE_KEY);
+
+// Detecta si se ha pegado una clave pública (publishable/anon) en vez de la secreta
+function supabaseKeyProblem() {
+  const k = env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!k) return null;
+  if (/^sb_publishable_/i.test(k)) return 'En SUPABASE_SERVICE_ROLE_KEY has puesto la clave pública (sb_publishable_…). Pon la clave secreta (sb_secret_…).';
+  if (k.startsWith('eyJ')) {
+    try {
+      const payload = JSON.parse(Buffer.from(k.split('.')[1].replace(/-/g, '+').replace(/_/g, '/'), 'base64').toString('utf8'));
+      if (payload.role && payload.role !== 'service_role') return `En SUPABASE_SERVICE_ROLE_KEY has puesto la clave «${payload.role}». Pon la clave service_role o la secreta (sb_secret_…).`;
+      if (payload.ref && !env.SUPABASE_URL.includes(payload.ref)) return 'La clave de Supabase es de otro proyecto. Copia la del proyecto cristhian-perez-tattoo.';
+    } catch { /* no es un JWT válido: lo dirá Supabase */ }
+  }
+  return null;
+}
 const hasStripe = () => Boolean(env.STRIPE_SECRET_KEY);
 const hasEmail = () => Boolean(env.RESEND_API_KEY && env.EMAIL_FROM);
 
@@ -64,7 +102,7 @@ class HttpError extends Error {
 // ---------- Supabase (PostgREST + Storage) ----------
 async function fetchSafe(url, opts) {
   try { return await fetch(url, opts); }
-  catch (e) { const err = new HttpError(502, 'No se puede conectar con la base de datos: revisa SUPABASE_URL en Vercel.'); err.cause = e; throw err; }
+  catch (e) { const err = new HttpError(502, `No se puede conectar con la base de datos (${env.SUPABASE_URL || 'sin dirección'}): revisa SUPABASE_URL en Vercel.`); err.cause = e; console.error('[supabase fetch]', e); throw err; }
 }
 // Acepta la clave secreta nueva (sb_secret_…, solo va en «apikey») y la service_role antigua (JWT, también como Bearer).
 function sbAuth() {
@@ -73,6 +111,8 @@ function sbAuth() {
 }
 async function db(path, { method = 'GET', body, prefer, headers } = {}) {
   if (!hasDb()) throw new HttpError(503, 'La base de datos no está configurada.');
+  const kp = supabaseKeyProblem();
+  if (kp) throw new HttpError(502, kp);
   const r = await fetchSafe(`${env.SUPABASE_URL}/rest/v1/${path}`, {
     method,
     headers: {
@@ -236,7 +276,7 @@ function decodeImage(input) {
 const euros = (cents) => (cents / 100).toLocaleString('es-ES', { style: 'currency', currency: 'EUR' });
 
 module.exports = {
-  env, hasDb, hasStripe, hasEmail, send, ok, fail, readJson, origin, wrap, HttpError,
+  env, normalizeSupabaseUrl, supabaseKeyProblem, hasDb, hasStripe, hasEmail, send, ok, fail, readJson, origin, wrap, HttpError,
   db, storageUpload, storageDelete, storageSignedUrl, publicUrl, stripe, sendEmail, sendWhatsApp,
   esc, str, isEmail, isUuid, makeRef, decodeImage, euros, crypto,
 };

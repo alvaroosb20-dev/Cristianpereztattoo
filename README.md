@@ -65,8 +65,8 @@ Cada vez que alguien paga la señal, el estudio recibe un WhatsApp con la fecha,
 
 | Variable | Valor |
 |---|---|
-| `SUPABASE_URL` | Project URL de Supabase |
-| `SUPABASE_SERVICE_ROLE_KEY` | clave service_role |
+| `SUPABASE_URL` | opcional: ya viene puesta la del proyecto `https://ihyvszeikhvcunswrdfa.supabase.co` |
+| `SUPABASE_SERVICE_ROLE_KEY` | clave **secreta** (`sb_secret_…`) o `service_role`. ¡No la pública! |
 | `STRIPE_SECRET_KEY` | `sk_test_…` o `sk_live_…` |
 | `STRIPE_WEBHOOK_SECRET` | `whsec_…` |
 | `RESEND_API_KEY` | `re_…` |
