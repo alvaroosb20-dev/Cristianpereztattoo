@@ -247,3 +247,8 @@ select * from (values
 where not exists (select 1 from public.portfolio p where p.src = v.src);
 update public.portfolio set sort = 4 where src = 'media/video-1.mp4';
 update public.portfolio set sort = 5 where src = 'media/video-2.mp4';
+
+-- Nuevo clip del estudio (primero del portafolio)
+insert into public.portfolio (kind, src, poster, title, style, sort)
+select 'video', 'media/clip-estudio.mp4', 'media/clip-estudio.jpg', 'Sesión en el estudio · costillas', 'Blackwork', 0
+where not exists (select 1 from public.portfolio where src = 'media/clip-estudio.mp4');

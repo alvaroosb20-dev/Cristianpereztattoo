@@ -156,6 +156,7 @@
   ];
 
   const PORTFOLIO = [
+    { id: 'c0', kind: 'video', src: 'media/clip-estudio.mp4', poster: 'media/clip-estudio.jpg', title: 'Sesión en el estudio · costillas', style: 'Blackwork', sort: 0, visible: true },
     { id: 'c1', kind: 'video', src: 'media/clip-sesion.mp4', poster: 'media/clip-sesion.jpg', title: 'Sesión en el estudio', style: 'Blackwork', sort: 1, visible: true },
     { id: 'c2', kind: 'video', src: 'media/clip-detalle.mp4', poster: 'media/clip-detalle.jpg', title: 'Línea a línea', style: 'Realismo black & grey', sort: 2, visible: true },
     { id: 'c3', kind: 'video', src: 'media/clip-llegada.mp4', poster: 'media/clip-llegada.jpg', title: 'Un día con Cristhian', style: 'Backstage', sort: 3, visible: true },
