@@ -5,7 +5,7 @@ const { execFileSync } = require('child_process');
 const assert = require('assert');
 
 Object.assign(process.env, {
-  SUPABASE_URL: 'https://db.test', SUPABASE_SERVICE_ROLE_KEY: 'service', STRIPE_SECRET_KEY: 'sk_test_x',
+  SUPABASE_URL: 'https://db.test', SUPABASE_SERVICE_ROLE_KEY: 'sb_secret_testkey1234567890', STRIPE_SECRET_KEY: 'sk_test_x',
   RESEND_API_KEY: 're_x', EMAIL_FROM: 'Estudio <r@test.com>', OWNER_EMAIL: 'owner@test.com',
   ADMIN_PASSWORD: 'secreto-largo', CALLMEBOT_APIKEY: 'k123', ADMIN_SESSION_SECRET: 'x'.repeat(40), SITE_URL: 'https://web.test',
 });

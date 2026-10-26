@@ -46,6 +46,11 @@ const hasDb = () => Boolean(env.SUPABASE_URL && env.SUPABASE_SERVICE_ROLE_KEY);
 function supabaseKeyProblem() {
   const k = env.SUPABASE_SERVICE_ROLE_KEY;
   if (!k) return null;
+  const start = k.slice(0, 4);
+  if (/^postgres(ql)?:\/\//i.test(k)) return 'En SUPABASE_SERVICE_ROLE_KEY has puesto la cadena de conexión de la base de datos (postgresql://…). Hay que poner la clave secreta de la API: Supabase → Project Settings → API Keys.';
+  if (/^https?:\/\//i.test(k)) return 'En SUPABASE_SERVICE_ROLE_KEY has puesto una dirección web. Hay que poner la clave secreta de la API: Supabase → Project Settings → API Keys.';
+  if (/\s/.test(k)) return 'La clave de SUPABASE_SERVICE_ROLE_KEY tiene espacios o saltos de línea en medio. Vuelve a copiarla con el botón de copiar de Supabase y pégala sola.';
+  if (!/^sb_secret_[A-Za-z0-9_-]{10,}$/.test(k) && !/^eyJ[\w-]+\.[\w-]+\.[\w-]+$/.test(k)) return `La clave de SUPABASE_SERVICE_ROLE_KEY no tiene el formato correcto (empieza por «${start}…»). Debe empezar por «sb_secret_» o por «eyJ» (service_role).`;
   if (/^sb_publishable_/i.test(k)) return 'En SUPABASE_SERVICE_ROLE_KEY has puesto la clave pública (sb_publishable_…). Pon la clave secreta (sb_secret_…).';
   if (k.startsWith('eyJ')) {
     try {
