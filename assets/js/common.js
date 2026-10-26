@@ -164,7 +164,7 @@
     const st = site.settings.studio;
     const year = new Date().getFullYear();
     return `<footer class="site-footer"><div class="wrap">
-      <p class="footer-word" aria-hidden="true">Cristhian <em>Pérez</em></p>
+      <p class="footer-word" aria-hidden="true">Cristhian Pérez</p>
       <div class="footer-cols">
         <div>
           <h4 class="label">Estudio</h4>

@@ -52,9 +52,9 @@ const dateEs = (d) => new Date(`${d}T12:00:00Z`).toLocaleDateString('es-ES', { w
 function emailShell(title, inner, studio) {
   return `<!doctype html><html><body style="margin:0;background:#0d0c0b;padding:24px;font-family:Helvetica,Arial,sans-serif;color:#ece6da">
   <div style="max-width:560px;margin:0 auto;background:#171513;border:1px solid #2a2622;padding:28px">
-    <div style="font-family:Georgia,serif;font-size:22px;letter-spacing:.04em">${core.esc(studio.name)}</div>
+    <div style="font-family:Helvetica,Arial,sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:-.02em;font-size:22px;letter-spacing:.04em">${core.esc(studio.name)}</div>
     <div style="height:1px;background:#b8975a;margin:16px 0 22px"></div>
-    <h1 style="font-family:Georgia,serif;font-weight:normal;font-size:26px;margin:0 0 16px">${title}</h1>
+    <h1 style="font-family:Helvetica,Arial,sans-serif;font-weight:600;text-transform:uppercase;letter-spacing:-.02em;font-size:26px;margin:0 0 16px">${title}</h1>
     ${inner}
     <p style="color:#8f877b;font-size:12px;margin-top:28px">${core.esc(studio.name)} · ${core.esc(studio.address || studio.city)}${studio.phone ? ' · ' + core.esc(studio.phone) : ''}${studio.instagram ? ' · @' + core.esc(studio.instagram) : ''}</p>
   </div></body></html>`;

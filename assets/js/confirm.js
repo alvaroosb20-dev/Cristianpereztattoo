@@ -20,7 +20,7 @@ CP.ready(async (site) => {
     const dl = (k, v) => `<div><dt>${k}</dt><dd>${v}</dd></div>`;
     box.innerHTML = `
       <span class="label gold">${needs ? 'Pago recibido' : 'Señal pagada'}</span>
-      <h1 class="display h2">${needs ? 'Te contactamos para fijar fecha' : `Gracias, ${CP.esc(b.name.split(' ')[0])}. <em>Tu fecha está bloqueada.</em>`}</h1>
+      <h1 class="display h2">${needs ? 'Te contactamos para fijar fecha' : `Gracias, ${CP.esc(b.name.split(' ')[0])}. Tu fecha está bloqueada.`}</h1>
       <p class="muted" style="margin:0">${needs ? 'Hemos recibido tu señal, pero esa hora se ocupó mientras pagabas. El estudio te escribirá para darte otra fecha o devolverte la señal.' : 'Cristhian revisará tu idea y te confirmará la cita y el presupuesto por correo.'} Te hemos enviado el justificante a tu email.</p>
       <div class="ref">Ref. ${CP.esc(b.ref)}</div>
       <dl class="ticket" style="position:static;padding:1.2rem">

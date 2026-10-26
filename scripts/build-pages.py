@@ -1,7 +1,7 @@
 # Genera las páginas HTML con la misma cabecera <head>. Ejecutar: python3 scripts/build-pages.py
 import os, json
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-FONTS = "https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,300..800&family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..700;1,6..96,400..600&family=IBM+Plex+Mono:wght@400;500&display=swap"
+FONTS = "https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&display=swap"
 
 def head(title, desc, extra=""):
     return f"""<!doctype html>
@@ -53,7 +53,7 @@ page("index.html", "home", "Cristhian Pérez Tattoo",
   <div class="wrap hero-grid">
     <div class="hero-copy">
       <div class="hero-kicker label" data-bind="city">Tenerife · Islas Canarias</div>
-      <h1 class="display hero-title"><span class="line"><span>Cristhian</span></span><span class="line"><span><em>Pérez</em></span></span><span class="line"><span class="gold" style="font-size:.42em;letter-spacing:.32em;font-style:normal;font-family:var(--f-sans);font-stretch:75%;font-weight:600">TATTOO</span></span></h1>
+      <h1 class="display hero-title"><span class="line"><span>Cristhian</span></span><span class="line"><span>Pérez</span></span><span class="line"><span>Tattoo</span></span></h1>
       <p class="hero-sub" data-bind="tagline">Realismo, fine line y piezas con alma editorial. Tenerife.</p>
       <div class="hero-ctas">
         <a class="btn btn-gold" href="reservar.html">Reservar cita</a>
@@ -75,7 +75,7 @@ page("index.html", "home", "Cristhian Pérez Tattoo",
     </figure>
     <div class="about-text">
       <span class="label gold">El artista</span>
-      <h2 class="display h2" style="margin:.8rem 0 1.6rem">Cada pieza empieza<br>con <em>una conversación</em>.</h2>
+      <h2 class="display h2" style="margin:.8rem 0 1.6rem">Cada pieza empieza<br>con una conversación.</h2>
       <div id="about"></div>
       <dl class="facts">
         <div><dt class="label">Estudio</dt><dd data-bind="cityShort">Tenerife</dd></div>
@@ -90,7 +90,7 @@ page("index.html", "home", "Cristhian Pérez Tattoo",
   <div class="wrap split">
     <div>
       <span class="label gold">Estilos</span>
-      <h2 class="display h2" style="margin-top:.8rem">Lo que se <em>tatúa</em> aquí</h2>
+      <h2 class="display h2" style="margin-top:.8rem">Lo que se tatúa aquí</h2>
       <p class="muted" style="margin-top:1.2rem;max-width:36ch">Elige un estilo y míralo en el portafolio, o llévalo directamente a tu solicitud de cita.</p>
     </div>
     <ul class="styles-list" id="styles-list"></ul>
@@ -110,7 +110,7 @@ page("index.html", "home", "Cristhian Pérez Tattoo",
 <section class="section" id="tienda">
   <div class="wrap">
     <div class="section-head">
-      <div><span class="label">Tienda oficial</span><h2 class="display h2">Merch y <em>aftercare</em></h2></div>
+      <div><span class="label">Tienda oficial</span><h2 class="display h2">Merch y aftercare</h2></div>
       <a class="btn btn-ghost" href="tienda.html">Ver tienda</a>
     </div>
     <div class="products" id="featured"></div>
@@ -119,7 +119,7 @@ page("index.html", "home", "Cristhian Pérez Tattoo",
 
 <section class="section" id="opiniones" hidden>
   <div class="wrap">
-    <div class="section-head"><div><span class="label">Opiniones</span><h2 class="display h2">Lo que dicen <em>en la piel</em></h2></div></div>
+    <div class="section-head"><div><span class="label">Opiniones</span><h2 class="display h2">Lo que dicen en la piel</h2></div></div>
     <div class="reviews" id="reviews"></div>
   </div>
 </section>
@@ -128,7 +128,7 @@ page("index.html", "home", "Cristhian Pérez Tattoo",
   <div class="wrap band-grid">
     <div>
       <span class="label muted">Reserva online</span>
-      <h2 class="display h2" style="margin:.8rem 0 1.4rem">Una señal de <span data-bind="deposit">50 €</span><br>bloquea <em>tu fecha</em>.</h2>
+      <h2 class="display h2" style="margin:.8rem 0 1.4rem">Una señal de <span data-bind="deposit">50 €</span><br>bloquea tu fecha.</h2>
       <p class="muted" style="max-width:48ch" data-bind="depositNote">La señal se descuenta del precio final del tatuaje.</p>
       <a class="btn" href="reservar.html" style="margin-top:1rem">Reservar cita</a>
     </div>
@@ -143,7 +143,7 @@ page("index.html", "home", "Cristhian Pérez Tattoo",
 
 <section class="section" id="contacto">
   <div class="wrap">
-    <div class="section-head"><div><span class="label gold">Contacto</span><h2 class="display h2">Ven al <em>estudio</em></h2></div></div>
+    <div class="section-head"><div><span class="label gold">Contacto</span><h2 class="display h2">Ven al estudio</h2></div></div>
     <div class="contact-grid" id="contact"></div>
   </div>
 </section>""", ["home.js"], LDJSON)
@@ -152,7 +152,7 @@ page("portafolio.html", "portfolio", "Portafolio · Cristhian Pérez Tattoo",
   "Tatuajes de Cristhian Pérez: realismo black & grey, fine line, microrealismo y lettering editorial. Vídeos de sesiones y fotos de trabajos.",
   """<section class="page-head"><div class="wrap">
   <span class="label">Trabajos</span>
-  <h1 class="display h1">Porta<em>folio</em></h1>
+  <h1 class="display h1">Portafolio</h1>
   <p class="lead muted" style="margin-top:1.2rem">Sesiones grabadas en el estudio y piezas terminadas. Los vídeos se reproducen solos: toca el altavoz para escuchar la música.</p>
 </div></section>
 <section class="wrap" style="padding-block:2rem 5rem">
@@ -166,7 +166,7 @@ page("tienda.html", "shop", "Tienda · Cristhian Pérez Tattoo",
   "Tienda oficial de Cristhian Pérez Tattoo: camisetas, gorras, sudaderas, prints, productos de cuidado del tatuaje y tarjetas regalo. Envíos a toda España.",
   """<section class="page-head"><div class="wrap">
   <span class="label">Tienda oficial</span>
-  <h1 class="display h1">Tien<em>da</em></h1>
+  <h1 class="display h1">Tienda</h1>
   <p class="lead muted" style="margin-top:1.2rem">Tiradas cortas, cuidado del tatuaje y tarjetas regalo. Envíos a Canarias, Península y Baleares.</p>
 </div></section>
 <section class="wrap" style="padding-block:2rem 5rem">
@@ -188,7 +188,7 @@ page("producto.html", "shop", "Producto · Cristhian Pérez Tattoo",
 
 page("carrito.html", "cart", "Carrito · Cristhian Pérez Tattoo",
   "Tu carrito en la tienda de Cristhian Pérez Tattoo.",
-  """<section class="page-head"><div class="wrap"><span class="label">Tienda</span><h1 class="display h1">Carri<em>to</em></h1></div></section>
+  """<section class="page-head"><div class="wrap"><span class="label">Tienda</span><h1 class="display h1">Carrito</h1></div></section>
 <div class="wrap">
   <div id="cart-notice"></div>
   <div class="cart-layout" id="cart-layout">
@@ -229,7 +229,7 @@ page("reservar.html", "book", "Reservar cita · Cristhian Pérez Tattoo",
   "Reserva tu cita de tatuaje con Cristhian Pérez: cuenta tu idea, adjunta tu diseño, elige día y hora y confirma con una señal de 50 €.",
   """<section class="page-head"><div class="wrap">
   <span class="label">Reserva online</span>
-  <h1 class="display h1">Reservar <em>cita</em></h1>
+  <h1 class="display h1">Reservar cita</h1>
 </div></section>
 <div class="wrap">
   <div class="booking">
@@ -256,6 +256,6 @@ page("legal.html", "legal", "Información legal · Cristhian Pérez Tattoo",
 <div class="wrap"><article class="prose" id="legal-body"></article></div>""", ["legal.js"])
 
 page("404.html", "404", "Página no encontrada · Cristhian Pérez Tattoo", "Página no encontrada.",
-  """<section class="page-head" style="border:0"><div class="wrap"><span class="label">Error 404</span><h1 class="display h1">Aquí no hay <em>tinta</em>.</h1>
+  """<section class="page-head" style="border:0"><div class="wrap"><span class="label">Error 404</span><h1 class="display h1">Aquí no hay tinta.</h1>
 <p class="lead muted" style="margin:1.4rem 0 2rem">La página que buscas no existe o se ha movido.</p><a class="btn" href="index.html">Volver al inicio</a></div></section>""", [])
 print("ok")
