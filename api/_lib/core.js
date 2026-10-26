@@ -40,6 +40,16 @@ const env = {
   CALLMEBOT_APIKEY: clean(process.env.CALLMEBOT_APIKEY, 'CALLMEBOT_APIKEY'),
 };
 
+// Si se pegaron al revés (la clave en SUPABASE_URL y la dirección en la clave), se corrige solo
+(() => {
+  const rawUrl = clean(process.env.SUPABASE_URL, 'SUPABASE_URL');
+  const looksKey = (v) => /^sb_secret_/.test(v) || /^eyJ[\w-]+\.[\w-]+\.[\w-]+$/.test(v);
+  if (/^https?:\/\//i.test(env.SUPABASE_SERVICE_ROLE_KEY) && looksKey(rawUrl)) {
+    const u = normalizeSupabaseUrl(env.SUPABASE_SERVICE_ROLE_KEY);
+    env.SUPABASE_SERVICE_ROLE_KEY = rawUrl;
+    env.SUPABASE_URL = u || env.SUPABASE_URL;
+  }
+})();
 const hasDb = () => Boolean(env.SUPABASE_URL && env.SUPABASE_SERVICE_ROLE_KEY);
 
 // Detecta si se ha pegado una clave pública (publishable/anon) en vez de la secreta
